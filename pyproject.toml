@@ -139,5 +139,5 @@ method = "git"
 match = ["v*"]
 
 [tool.versioningit.onbuild]
-source-file = "qcodes/_version.py"
-build-file = "qcodes/_version.py"
+source-file = "src/qcodes_loop/_version.py"
+build-file = "qcodes_loop/_version.py"
