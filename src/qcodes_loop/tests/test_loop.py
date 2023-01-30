@@ -4,15 +4,15 @@ from unittest import TestCase
 from unittest.mock import patch
 
 import numpy as np
-from qcodes.actions import BreakIf, Task, Wait, _QcodesBreak
-from qcodes.data.data_array import DataArray
-from qcodes.logger.logger import LogCapture
-from qcodes.loops import Loop
+from qcodes_loop.actions import BreakIf, Task, Wait, _QcodesBreak
+from qcodes_loop.data.data_array import DataArray
+from qcodes.logger import LogCapture
+from qcodes_loop.loops import Loop
 from qcodes.parameters import MultiParameter, Parameter
 from qcodes.station import Station
 from qcodes.validators import Numbers
 
-from ..instrument_mocks import DummyInstrument, MultiGetter
+from qcodes.tests.instrument_mocks import DummyInstrument, MultiGetter
 
 
 class NanReturningParameter(MultiParameter):
@@ -398,7 +398,7 @@ class TestLoop(TestCase):
             },
             'loop': {
                 'use_threads': False,
-                '__class__': 'qcodes.loops.ActiveLoop',
+                '__class__': 'qcodes_loop.loops.ActiveLoop',
                 'sweep_values': {
                     'parameter': p1snap,
                     'values': [{'first': 1, 'last': 5, 'num': 5,
@@ -489,7 +489,7 @@ class TestMetaData(TestCase):
 
         # not sure why you'd do it, but you *can* snapshot a Loop
         expected = {
-            '__class__': 'qcodes.loops.Loop',
+            '__class__': 'qcodes_loop.loops.Loop',
             'sweep_values': sv.snapshot(),
             'delay': 0,
             'then_actions': []
@@ -505,7 +505,7 @@ class TestMetaData(TestCase):
         breaker = BreakIf(lambda: p1.get_latest() > 3)
         self.assertEqual(breaker.snapshot()['type'], 'BreakIf')
         loop = loop.each(p1, breaker)
-        expected['__class__'] = 'qcodes.loops.ActiveLoop'
+        expected['__class__'] = 'qcodes_loop.loops.ActiveLoop'
         expected['actions'] = [p1.snapshot(), breaker.snapshot()]
 
         self.assertEqual(loop.snapshot(), expected)

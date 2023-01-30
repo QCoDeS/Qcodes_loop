@@ -3,12 +3,12 @@ from unittest import TestCase
 import hypothesis.strategies as hst
 import numpy as np
 from hypothesis import given, settings
-from qcodes.actions import Task
-from qcodes.data.location import FormatLocation
-from qcodes.loops import Loop
+from qcodes_loop.actions import Task
+from qcodes_loop.data.location import FormatLocation
+from qcodes_loop.loops import Loop
 from qcodes.parameters import Parameter, combine
 
-from ..instrument_mocks import DummyInstrument
+from qcodes.tests.instrument_mocks import DummyInstrument
 
 
 class TestLoopCombined(TestCase):

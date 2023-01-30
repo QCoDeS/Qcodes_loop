@@ -1,8 +1,8 @@
 import gc
 from unittest import TestCase
 
-from qcodes.actions import UnsafeThreadingException
-from qcodes.loops import Loop
+from qcodes_loop.actions import UnsafeThreadingException
+from qcodes_loop.loops import Loop
 from qcodes.tests.instrument_mocks import DummyInstrument
 
 

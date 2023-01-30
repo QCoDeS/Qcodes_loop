@@ -12,14 +12,14 @@ import numpy as np
 
 try:
     noQtPlot = False
-    from qcodes.plots.pyqtgraph import QtPlot
+    from qcodes_loop.plots.pyqtgraph import QtPlot
 except Exception:
     noQtPlot = True
 
 try:
     noMatPlot = False
     import matplotlib
-    from qcodes.plots.qcmatplotlib import MatPlot
+    from qcodes_loop.plots.qcmatplotlib import MatPlot
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
 except Exception:

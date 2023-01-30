@@ -5,11 +5,11 @@ from unittest import TestCase
 import h5py
 import numpy as np
 import qcodes.data
-from qcodes.data.data_array import DataArray
-from qcodes.data.data_set import DataSet, load_data, new_data
-from qcodes.data.hdf5_format import HDF5Format, str_to_bool
-from qcodes.data.location import FormatLocation
-from qcodes.loops import Loop
+from qcodes_loop.data.data_array import DataArray
+from qcodes_loop.data.data_set import DataSet, load_data, new_data
+from qcodes_loop.data.hdf5_format import HDF5Format, str_to_bool
+from qcodes_loop.data.location import FormatLocation
+from qcodes_loop.loops import Loop
 from qcodes.station import Station
 from qcodes.tests.common import compare_dictionaries
 from qcodes.tests.instrument_mocks import MockParabola

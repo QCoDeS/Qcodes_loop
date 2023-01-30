@@ -6,19 +6,19 @@ from unittest import TestCase
 import numpy as np
 import pandas as pd
 import xarray as xr
-from qcodes.data.data_array import DataArray, data_array_to_xarray_dictionary
-from qcodes.data.data_set import (
+from qcodes_loop.data.data_array import DataArray, data_array_to_xarray_dictionary
+from qcodes_loop.data.data_set import (
     DataSet,
     load_data,
     new_data,
     qcodes_dataset_to_xarray_dataset,
     xarray_dataset_to_qcodes_dataset,
 )
-from qcodes.data.io import DiskIO
-from qcodes.data.location import FormatLocation
-from qcodes.logger.logger import LogCapture
+from qcodes_loop.data.io import DiskIO
+from qcodes_loop.data.location import FormatLocation
+from qcodes.logger import LogCapture
 
-from ..common import strip_qc
+from qcodes.tests.common import strip_qc
 from .data_mocks import (
     DataSet1D,
     DataSet2D,
@@ -329,10 +329,10 @@ class TestDataSetMetaData(TestCase):
     def test_snapshot(self):
         data = new_data(location=False)
         expected_snap = {
-            '__class__': 'qcodes.data.data_set.DataSet',
+            '__class__': 'qcodes_loop.data.data_set.DataSet',
             'location': False,
             'arrays': {},
-            'formatter': 'qcodes.data.gnuplot_format.GNUPlotFormat',
+            'formatter': 'qcodes_loop.data.gnuplot_format.GNUPlotFormat',
         }
         snap = strip_qc(data.snapshot())
 

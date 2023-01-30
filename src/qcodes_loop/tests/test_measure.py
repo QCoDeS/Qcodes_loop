@@ -3,11 +3,11 @@ from unittest import TestCase
 
 import numpy as np
 from numpy.testing import assert_array_equal
-from qcodes.data.location import FormatLocation
-from qcodes.measure import Measure
+from qcodes_loop.data.location import FormatLocation
+from qcodes_loop.measure import Measure
 from qcodes.parameters import Parameter
 
-from ..instrument_mocks import MultiGetter, MultiSetPointParam
+from qcodes.tests.instrument_mocks import MultiGetter, MultiSetPointParam
 
 
 class TestMeasure(TestCase):
@@ -24,7 +24,7 @@ class TestMeasure(TestCase):
         self.assertNotIn('loop', data.metadata)
 
         meta = data.metadata['measurement']
-        self.assertEqual(meta['__class__'], 'qcodes.measure.Measure')
+        self.assertEqual(meta['__class__'], 'qcodes_loop.measure.Measure')
         self.assertEqual(len(meta['actions']), 1)
         self.assertFalse(meta['use_threads'])
 
