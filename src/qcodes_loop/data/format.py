@@ -5,7 +5,7 @@ from traceback import format_exc
 from typing import TYPE_CHECKING, Set
 
 if TYPE_CHECKING:
-    import qcodes.data.data_set
+    import qcodes_loop.data.data_set
 
 
 log = logging.getLogger(__name__)
@@ -58,7 +58,7 @@ class Formatter:
 
     def write(
         self,
-        data_set: "qcodes.data.data_set.DataSet",
+        data_set: "qcodes_loop.data.data_set.DataSet",
         io_manager,
         location,
         write_metadata=True,
@@ -84,7 +84,7 @@ class Formatter:
         """
         raise NotImplementedError
 
-    def read(self, data_set: "qcodes.data.data_set.DataSet") -> None:
+    def read(self, data_set: "qcodes_loop.data.data_set.DataSet") -> None:
         """
         Read the entire ``DataSet``.
 
@@ -126,7 +126,7 @@ class Formatter:
 
     def write_metadata(
         self,
-        data_set: "qcodes.data.data_set.DataSet",
+        data_set: "qcodes_loop.data.data_set.DataSet",
         io_manager,
         location,
         read_first=True,
@@ -147,7 +147,7 @@ class Formatter:
         """
         raise NotImplementedError
 
-    def read_metadata(self, data_set: "qcodes.data.data_set.DataSet"):
+    def read_metadata(self, data_set: "qcodes_loop.data.data_set.DataSet"):
         """
         Read the metadata from this DataSet from storage.
 
@@ -158,7 +158,7 @@ class Formatter:
         """
         raise NotImplementedError
 
-    def read_one_file(self, data_set: "qcodes.data.data_set.DataSet", f, ids_read):
+    def read_one_file(self, data_set: "qcodes_loop.data.data_set.DataSet", f, ids_read):
         """
         Read data from a single file into a ``DataSet``.
 

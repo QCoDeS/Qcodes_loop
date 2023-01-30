@@ -1,7 +1,6 @@
 from unittest import TestCase
 
 import numpy as np
-
 import qcodes
 import qcodes.measure
 from qcodes.data.data_set import load_data

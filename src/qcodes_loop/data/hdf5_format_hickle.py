@@ -2,7 +2,6 @@ import logging
 from typing import TYPE_CHECKING
 
 import hickle
-
 from qcodes.utils import deep_update
 
 from .hdf5_format import HDF5Format

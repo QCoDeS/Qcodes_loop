@@ -3,7 +3,6 @@ from unittest import TestCase
 import hypothesis.strategies as hst
 import numpy as np
 from hypothesis import given, settings
-
 from qcodes.actions import Task
 from qcodes.data.location import FormatLocation
 from qcodes.loops import Loop

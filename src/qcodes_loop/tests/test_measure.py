@@ -3,7 +3,6 @@ from unittest import TestCase
 
 import numpy as np
 from numpy.testing import assert_array_equal
-
 from qcodes.data.location import FormatLocation
 from qcodes.measure import Measure
 from qcodes.parameters import Parameter

@@ -5,14 +5,13 @@ import re
 from typing import TYPE_CHECKING
 
 import numpy as np
-
 from qcodes.utils import NumpyJSONEncoder, deep_update
 
 from .data_array import DataArray
 from .format import Formatter
 
 if TYPE_CHECKING:
-    import qcodes.data.data_set
+    import qcodes_loop.data.data_set
 
 
 log = logging.getLogger(__name__)
@@ -257,7 +256,7 @@ class GNUPlotFormat(Formatter):
     # so we have to ignore type errors
     def write(  # type: ignore[override]
         self,
-        data_set: "qcodes.data.data_set.DataSet",
+        data_set: "qcodes_loop.data.data_set.DataSet",
         io_manager,
         location,
         force_write=False,
@@ -358,7 +357,7 @@ class GNUPlotFormat(Formatter):
 
     def write_metadata(
         self,
-        data_set: "qcodes.data.data_set.DataSet",
+        data_set: "qcodes_loop.data.data_set.DataSet",
         io_manager,
         location,
         read_first=True,

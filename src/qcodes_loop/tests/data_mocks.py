@@ -1,5 +1,4 @@
 import numpy
-
 from qcodes.data.data_array import DataArray
 from qcodes.data.data_set import new_data
 from qcodes.data.io import DiskIO

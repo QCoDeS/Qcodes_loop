@@ -52,14 +52,14 @@ import warnings
 from functools import partial
 from time import sleep
 
+from qcodes import config as qc_config
+from qcodes.parameters import ParameterBase
 from requests.exceptions import ConnectTimeout, HTTPError, ReadTimeout
 from slack_sdk import WebClient
 from urllib3.exceptions import ReadTimeoutError
 
-from qcodes import config as qc_config
-from qcodes.loops import active_data_set, active_loop
-from qcodes.parameters import ParameterBase
-from qcodes.plots.base import BasePlot
+from qcodes_loop.loops import active_data_set, active_loop
+from qcodes_loop.plots.base import BasePlot
 
 
 class SlackTimeoutWarning(UserWarning):

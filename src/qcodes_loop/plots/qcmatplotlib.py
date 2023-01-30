@@ -7,10 +7,10 @@ from copy import deepcopy
 from functools import partial
 
 import numpy as np
+import qcodes
 from numpy.ma import getmask, masked_invalid
 
-import qcodes
-from qcodes.data.data_array import DataArray
+from qcodes_loop.data.data_array import DataArray
 
 from .base import BasePlot
 

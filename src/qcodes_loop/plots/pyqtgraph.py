@@ -9,12 +9,11 @@ from typing import Deque, Dict, List, Optional, Tuple, Union, cast
 import numpy as np
 import pyqtgraph as pg
 import pyqtgraph.multiprocess as pgmp
+import qcodes
+import qcodes.utils.qt_helpers
 from pyqtgraph import QtGui
 from pyqtgraph.graphicsItems.PlotItem.PlotItem import PlotItem
 from pyqtgraph.multiprocess.remoteproxy import ClosedError, ObjectProxy
-
-import qcodes
-import qcodes.utils.qt_helpers
 
 from .base import BasePlot
 from .colors import color_cycle, colorscales

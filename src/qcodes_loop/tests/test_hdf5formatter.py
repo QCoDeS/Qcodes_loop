@@ -4,7 +4,6 @@ from unittest import TestCase
 
 import h5py
 import numpy as np
-
 import qcodes.data
 from qcodes.data.data_array import DataArray
 from qcodes.data.data_set import DataSet, load_data, new_data

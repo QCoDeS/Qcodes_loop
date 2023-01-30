@@ -4,7 +4,6 @@ from unittest import TestCase
 from unittest.mock import patch
 
 import numpy as np
-
 from qcodes.actions import BreakIf, Task, Wait, _QcodesBreak
 from qcodes.data.data_array import DataArray
 from qcodes.logger.logger import LogCapture
