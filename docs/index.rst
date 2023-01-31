@@ -13,6 +13,17 @@ Welcome to qcodes_loop's documentation!
    api/index
    examples/index
 
+Readme
+======
+
+.. include:: ../README.rst
+
+
+License
+=======
+
+.. include:: ../LICENSE
+   :literal:
 
 
 Indices and tables
