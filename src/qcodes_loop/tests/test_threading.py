@@ -1,9 +1,10 @@
 import gc
 from unittest import TestCase
 
+from qcodes.tests.instrument_mocks import DummyInstrument
+
 from qcodes_loop.actions import UnsafeThreadingException
 from qcodes_loop.loops import Loop
-from qcodes.tests.instrument_mocks import DummyInstrument
 
 
 class TestUnsafeThreading(TestCase):

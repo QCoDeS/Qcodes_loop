@@ -19,6 +19,7 @@ except Exception:
 try:
     noMatPlot = False
     import matplotlib
+
     from qcodes_loop.plots.qcmatplotlib import MatPlot
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt

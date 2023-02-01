@@ -3,6 +3,7 @@ from datetime import datetime
 
 import pytest
 from qcodes.logger import LogCapture
+
 from qcodes_loop.loops import wait_secs
 
 
