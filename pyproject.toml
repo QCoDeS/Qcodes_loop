@@ -58,6 +58,7 @@ test = [
     "hypothesis>=5.49.0",
     "pytest>=6.1.0",
     "pytest-xdist>=2.0.0",
+    "pytest-mock>=3.0.0",
     "pyqtgraph>=0.11.0", # pyqtgraph tests
     "PyQt5>=5.15.0", # pyqtgraph tests
     "slack-sdk>=3.4.2", # needed to typecheck slack extension
