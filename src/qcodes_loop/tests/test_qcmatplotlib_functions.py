@@ -2,6 +2,7 @@ from itertools import product
 from typing import Tuple
 
 import numpy as np
+
 from qcodes_loop.plots.qcmatplotlib import MatPlot
 
 

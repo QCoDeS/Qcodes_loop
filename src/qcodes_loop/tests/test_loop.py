@@ -4,15 +4,15 @@ from unittest import TestCase
 from unittest.mock import patch
 
 import numpy as np
-from qcodes_loop.actions import BreakIf, Task, Wait, _QcodesBreak
-from qcodes_loop.data.data_array import DataArray
 from qcodes.logger import LogCapture
-from qcodes_loop.loops import Loop
 from qcodes.parameters import MultiParameter, Parameter
 from qcodes.station import Station
+from qcodes.tests.instrument_mocks import DummyInstrument, MultiGetter
 from qcodes.validators import Numbers
 
-from qcodes.tests.instrument_mocks import DummyInstrument, MultiGetter
+from qcodes_loop.actions import BreakIf, Task, Wait, _QcodesBreak
+from qcodes_loop.data.data_array import DataArray
+from qcodes_loop.loops import Loop
 
 
 class NanReturningParameter(MultiParameter):

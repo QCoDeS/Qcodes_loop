@@ -1,12 +1,13 @@
 import os
 from unittest import TestCase
 
+from qcodes.logger import LogCapture
+
 from qcodes_loop.data.data_array import DataArray
 from qcodes_loop.data.data_set import DataSet, load_data, new_data
 from qcodes_loop.data.format import Formatter
 from qcodes_loop.data.gnuplot_format import GNUPlotFormat
 from qcodes_loop.data.location import FormatLocation
-from qcodes.logger import LogCapture
 
 from .data_mocks import DataSet1D, DataSetCombined, file_1d, files_combined
 

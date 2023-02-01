@@ -3,10 +3,11 @@ from unittest import TestCase
 import numpy as np
 import qcodes
 import qcodes.measure
+from qcodes.parameters import Parameter
+
 from qcodes_loop.data.data_set import load_data
 from qcodes_loop.data.gnuplot_format import GNUPlotFormat
 from qcodes_loop.data.hdf5_format import HDF5Format, HDF5FormatMetadata
-from qcodes.parameters import Parameter
 from qcodes_loop.tests.data_mocks import DataSet2D
 
 

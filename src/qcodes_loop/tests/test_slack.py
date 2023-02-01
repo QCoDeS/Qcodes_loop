@@ -1,10 +1,9 @@
 from unittest.mock import call
 
 import pytest
+from qcodes.parameters import Parameter
 from requests.exceptions import ConnectTimeout, HTTPError, ReadTimeout
 from urllib3.exceptions import ReadTimeoutError
-
-from qcodes.parameters import Parameter
 
 
 class AnyStringWith(str):

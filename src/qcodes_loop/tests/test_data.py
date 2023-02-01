@@ -6,6 +6,9 @@ from unittest import TestCase
 import numpy as np
 import pandas as pd
 import xarray as xr
+from qcodes.logger import LogCapture
+from qcodes.tests.common import strip_qc
+
 from qcodes_loop.data.data_array import DataArray, data_array_to_xarray_dictionary
 from qcodes_loop.data.data_set import (
     DataSet,
@@ -16,9 +19,7 @@ from qcodes_loop.data.data_set import (
 )
 from qcodes_loop.data.io import DiskIO
 from qcodes_loop.data.location import FormatLocation
-from qcodes.logger import LogCapture
 
-from qcodes.tests.common import strip_qc
 from .data_mocks import (
     DataSet1D,
     DataSet2D,
