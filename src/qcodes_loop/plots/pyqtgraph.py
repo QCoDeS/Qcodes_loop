@@ -10,10 +10,11 @@ import numpy as np
 import pyqtgraph as pg
 import pyqtgraph.multiprocess as pgmp
 import qcodes
-import qcodes.utils.qt_helpers
 from pyqtgraph import QtGui
 from pyqtgraph.graphicsItems.PlotItem.PlotItem import PlotItem
 from pyqtgraph.multiprocess.remoteproxy import ClosedError, ObjectProxy
+
+import qcodes_loop.utils.qt_helpers
 
 from .base import BasePlot
 from .colors import color_cycle, colorscales
@@ -94,7 +95,7 @@ class QtPlot(BasePlot):
         else:
             # overrule the remote pyqtgraph class
             self.rpg = pg
-            self.qc_helpers = qcodes.utils.qt_helpers
+            self.qc_helpers = qcodes_loop.utils.qt_helpers
         try:
             # _init_qt will set self.rpg so it cannot be None here
             assert self.rpg is not None
@@ -149,7 +150,7 @@ class QtPlot(BasePlot):
         pg.mkQApp()
         cls.proc = pgmp.QtProcess()  # pyqtgraph multiprocessing
         cls.rpg = cls.proc._import("pyqtgraph")
-        cls.qc_helpers = cls.proc._import("qcodes.utils.qt_helpers")
+        cls.qc_helpers = cls.proc._import("qcodes_loop.utils.qt_helpers")
 
     def clear(self) -> None:
         """
