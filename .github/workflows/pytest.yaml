@@ -49,7 +49,7 @@ jobs:
       shell: bash
     - name: install qcodes_loop
       run: |
-        pip install .[test]
+        pip install -c requirements.txt .[test]
     - name: Run tests
       run: |
         pytest src/qcodes_loop
