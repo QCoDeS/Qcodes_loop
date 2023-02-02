@@ -33,10 +33,8 @@ dependencies = [
     "versioningit>=2.0.1",
     "xarray>=0.18.0",
     "hickle",
-    "ipython>=7.31.1,!=8.0.0", # todo move magic to here
+    "ipython>=7.31.1,!=8.0.0",
 ]
-
-# move qt helper
 
 dynamic = ["version"]
 
