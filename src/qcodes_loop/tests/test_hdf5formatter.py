@@ -4,7 +4,6 @@ from unittest import TestCase
 
 import h5py
 import numpy as np
-import qcodes.data
 from qcodes.station import Station
 from qcodes.tests.common import compare_dictionaries
 from qcodes.tests.instrument_mocks import MockParabola
@@ -152,8 +151,8 @@ class TestHDF5_Format(TestCase):
         MockPar.close()
 
     def test_partial_dataset(self):
-        data = qcodes.data.data_set.new_data(formatter=self.formatter)
-        data_array = qcodes.data.data_array.DataArray(array_id='test_partial_dataset', shape=(10,))
+        data = new_data(formatter=self.formatter)
+        data_array = DataArray(array_id="test_partial_dataset", shape=(10,))
         data_array.init_data()
         data_array.ndarray[0] = 1
         data.add_array(data_array)
