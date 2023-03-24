@@ -36,13 +36,13 @@ jobs:
       SPHINX_WARNINGS_AS_ERROR: 'true'
       SPHINX_OPTS: "-v"
     steps:
-    - uses: actions/checkout@v3.4.0
+    - uses: actions/checkout@v3.5.0
       with:
         fetch-depth: '0'
         # if we upload to ghpages we need the full
         # history to generate correct version info
       if: ${{ fromJSON(env.UPLOAD_TO_GHPAGES) }}
-    - uses: actions/checkout@v3.4.0
+    - uses: actions/checkout@v3.5.0
       if: ${{ !fromJSON(env.UPLOAD_TO_GHPAGES) }}
     - name: set-sphinx-opts
       run: |
