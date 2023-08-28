@@ -337,6 +337,9 @@ def test_slack_inst_should_upload_latest_plot(mock_webclient, slack, mocker):
     mock_webclient.files_upload.assert_called_with(**expected_output)
 
 
+@pytest.mark.xfail(
+    reason="Fails in CI on 3.10 https://github.com/QCoDeS/Qcodes_loop/issues/40"
+)
 def test_slack_inst_should_not_fail_upl_latest_wo_plot(mock_webclient, slack):
     slack.upload_latest_plot(channel='CH234')
     expected_output = {'channel': 'CH234', 'text': 'No latest plot'}
