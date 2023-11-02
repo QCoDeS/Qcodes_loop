@@ -142,6 +142,25 @@ class TestHDF5_Format(TestCase):
         for key in data2.arrays.keys():
             self.checkArraysEqual(data2.arrays[key], data1.arrays[key])
 
+        # the hdf5 formatter does not correctly save and restore
+        # validators from the list of validators added to the snapshot in
+        # qcodes 0.41. They are loaded as a numpy array of bytes rather
+        # than a list of strings. Here we remove them before comparison
+        data1.metadata["loop"]["sweep_values"]["parameter"].pop("validators", None)
+        data2.metadata["loop"]["sweep_values"]["parameter"].pop("validators", None)
+        data1.metadata["arrays"]["Loop_writing_test_x_set"].pop("validators", None)
+        data2.metadata["arrays"]["Loop_writing_test_x_set"].pop("validators", None)
+        captured_parameters_snapshot = data1.metadata["station"]["instruments"][
+            "Loop_writing_test"
+        ]["parameters"]
+        loaded_parameters_snapshot = data2.metadata["station"]["instruments"][
+            "Loop_writing_test"
+        ]["parameters"]
+
+        for param_name in captured_parameters_snapshot.keys():
+            captured_parameters_snapshot[param_name].pop("validators", None)
+            loaded_parameters_snapshot[param_name].pop("validators", None)
+
         metadata_equal, err_msg = compare_dictionaries(
             data1.metadata, data2.metadata,
             'original_metadata', 'loaded_metadata')
@@ -172,6 +191,34 @@ class TestHDF5_Format(TestCase):
         data2.read()
         for key in data2.arrays.keys():
             self.checkArraysEqual(data2.arrays[key], data1.arrays[key])
+
+        # the hdf5 formatter does not correctly save and restore
+        # validators from the list of validators added to the snapshot in
+        # qcodes 0.41. They are loaded as a numpy array of bytes rather
+        # than a list of strings. Here we remove them before comparison
+        data1.metadata["loop"]["sweep_values"]["parameter"].pop("validators", None)
+        data2.metadata["loop"]["sweep_values"]["parameter"].pop("validators", None)
+        data1.metadata["arrays"]["Loop_writing_test_2D_x_set"].pop("validators", None)
+        data2.metadata["arrays"]["Loop_writing_test_2D_x_set"].pop("validators", None)
+        data1.metadata["arrays"]["Loop_writing_test_2D_y_set"].pop("validators", None)
+        data2.metadata["arrays"]["Loop_writing_test_2D_y_set"].pop("validators", None)
+        captured_parameters_snapshot = data1.metadata["station"]["instruments"][
+            "Loop_writing_test_2D"
+        ]["parameters"]
+        loaded_parameters_snapshot = data2.metadata["station"]["instruments"][
+            "Loop_writing_test_2D"
+        ]["parameters"]
+
+        data1.metadata["loop"]["actions"][0]["sweep_values"]["parameter"].pop(
+            "validators", None
+        )
+        data2.metadata["loop"]["actions"][0]["sweep_values"]["parameter"].pop(
+            "validators", None
+        )
+
+        for param_name in captured_parameters_snapshot.keys():
+            captured_parameters_snapshot[param_name].pop("validators", None)
+            loaded_parameters_snapshot[param_name].pop("validators", None)
 
         metadata_equal, err_msg = compare_dictionaries(
             data1.metadata, data2.metadata,
