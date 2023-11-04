@@ -12,6 +12,7 @@ def strip_qc(
     for key in keys:
         if key in d:
             d[key] = d[key].replace("qcodes.tests.", "tests.")
+            d[key] = d[key].replace("qcodes_loop.tests.", "tests.")
     return d
 
 
