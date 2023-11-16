@@ -3,8 +3,8 @@ from unittest import TestCase
 import hypothesis.strategies as hst
 import numpy as np
 from hypothesis import given, settings
-from qcodes.parameters import Parameter, combine
 from qcodes.instrument_drivers.mock_instruments import DummyInstrument
+from qcodes.parameters import Parameter, combine
 
 from qcodes_loop.actions import Task
 from qcodes_loop.data.location import FormatLocation
