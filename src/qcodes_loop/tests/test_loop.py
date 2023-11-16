@@ -7,7 +7,7 @@ import numpy as np
 from qcodes.logger import LogCapture
 from qcodes.parameters import MultiParameter, Parameter
 from qcodes.station import Station
-from qcodes.tests.instrument_mocks import DummyInstrument, MultiGetter
+from qcodes.instrument_drivers.mock_instruments import DummyInstrument, MultiGetter
 from qcodes.validators import Numbers
 
 from qcodes_loop.actions import BreakIf, Task, Wait, _QcodesBreak

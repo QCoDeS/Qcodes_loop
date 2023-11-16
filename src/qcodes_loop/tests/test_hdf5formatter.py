@@ -5,7 +5,7 @@ from unittest import TestCase
 import h5py
 import numpy as np
 from qcodes.station import Station
-from qcodes.tests.instrument_mocks import MockParabola
+from qcodes.instrument_drivers.mock_instruments import MockParabola
 
 from qcodes_loop.data.data_array import DataArray
 from qcodes_loop.data.data_set import DataSet, load_data, new_data

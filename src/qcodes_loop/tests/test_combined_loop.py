@@ -4,7 +4,7 @@ import hypothesis.strategies as hst
 import numpy as np
 from hypothesis import given, settings
 from qcodes.parameters import Parameter, combine
-from qcodes.tests.instrument_mocks import DummyInstrument
+from qcodes.instrument_drivers.mock_instruments import DummyInstrument
 
 from qcodes_loop.actions import Task
 from qcodes_loop.data.location import FormatLocation
