@@ -1,7 +1,7 @@
 [build-system]
 requires = [
     "setuptools >= 61.2",
-    "versioningit >= 2.0.1",
+    "versioningit >= 2.2.1",
 ]
 build-backend = 'setuptools.build_meta'
 
@@ -29,7 +29,7 @@ dependencies = [
     "matplotlib>=3.3.0",
     "numpy>=1.21.0",
     "pandas>=1.0.0",
-    "versioningit>=2.0.1",
+    "versioningit>=2.2.1",
     "xarray>=0.18.0",
     "hickle",
     "ipython>=7.31.1,!=8.0.0",
@@ -99,6 +99,10 @@ filterwarnings = [
     "ignore:distutils Version classes are deprecated:DeprecationWarning",
     "ignore:SelectableGroups dict interface is deprecated:DeprecationWarning"
 ]
+
+[tool.setuptools.cmdclass]
+sdist = "versioningit.cmdclass.sdist"
+build_py = "versioningit.cmdclass.build_py"
 
 [tool.versioningit]
 default-version = "0.0"
