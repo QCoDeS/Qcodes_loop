@@ -49,7 +49,7 @@ Tracker = "https://github.com/QCoDeS/Qcodes_loop/issues"
 
 [project.optional-dependencies]
 qtplot = ["pyqtgraph>=0.11.0"]
-slack = ["slack-sdk>=3.4.2"]
+slack = ["slack-sdk>=3.4.2", "requests", "urllib3"]
 test = [
     "coverage[toml]>=6.0.0",
     "hypothesis>=5.49.0",
@@ -58,14 +58,18 @@ test = [
     "pytest-mock>=3.0.0",
     "pyqtgraph>=0.11.0", # pyqtgraph tests
     "PyQt5>=5.15.0", # pyqtgraph tests
-    "slack-sdk>=3.4.2", # needed to typecheck slack extension
+    "slack-sdk>=3.4.2", # slack tests and typecheck
+    "requests", # slack tests and typecheck
+    "urllib3", # slack tests and typecheck
 ]
 docs = [
     "nbsphinx>=0.8.9",
     "PyQt5>=5.15.0", # pyqtgraph examples
     "pyqtgraph>=0.11.0", # pyqtgraph examples
     "sphinx>=4.5.0",
-    "slack-sdk>=3.4.2", # slack example notebook
+    "slack-sdk>=3.4.2", # slack docs
+    "requests", # slack docs
+    "urllib3", # slack docs
 ]
 
 
