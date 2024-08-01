@@ -286,7 +286,7 @@ class QtPlot(BasePlot):
         # pyqtgraph handle nans - though the source does hint at a way:
         # http://www.pyqtgraph.org/documentation/_modules/pyqtgraph/widgets/ColorMapWidget.html
         # see class RangeColorMapItem
-        z = np.asfarray(z).T
+        z = np.asarray(z).T
         with warnings.catch_warnings():
             warnings.simplefilter('error')
             try:

@@ -4,6 +4,7 @@ from unittest import TestCase
 from unittest.mock import patch
 
 import numpy as np
+from numpy.testing import assert_array_equal
 from qcodes.instrument_drivers.mock_instruments import DummyInstrument, MultiGetter
 from qcodes.logger import LogCapture
 from qcodes.parameters import MultiParameter, Parameter
@@ -468,8 +469,8 @@ class AbortingGetter(Parameter):
 class Test_halt(TestCase):
     def test_halt(self):
         abort_after = 3
-        self.res = list(np.arange(0, abort_after-1, 1.))
-        [self.res.append(float('nan')) for i in range(0, abort_after-1)]
+        self.res = np.arange(0, abort_after - 1, 1.0).tolist()
+        [self.res.append(float("nan")) for i in range(0, abort_after - 1)]
 
         p1 = AbortingGetter('p1', count=abort_after, vals=Numbers(-10, 10), set_cmd=None)
         loop = Loop(p1.sweep(0, abort_after, 1), 0.005).each(p1)
@@ -478,6 +479,7 @@ class Test_halt(TestCase):
         data = loop.get_data_set(location=False)
 
         loop.run(quiet=True)
+        assert_array_equal(data.p1, self.res)
         self.assertEqual(repr(data.p1.tolist()), repr(self.res))
 
 
