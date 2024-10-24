@@ -4,7 +4,7 @@ Live plotting using pyqtgraph
 import logging
 import warnings
 from collections import deque, namedtuple
-from typing import Deque, Dict, List, Optional, Tuple, Union, cast
+from typing import Optional, Union, cast
 
 import numpy as np
 import pyqtgraph as pg
@@ -64,12 +64,12 @@ class QtPlot(BasePlot):
     # in a remote process
     max_len = qcodes.config['gui']['pyqtmaxplots']
     max_len = cast(int, max_len)
-    plots: Deque['QtPlot'] = deque(maxlen=max_len)
+    plots: deque['QtPlot'] = deque(maxlen=max_len)
 
     def __init__(
         self,
         *args,
-        figsize: Tuple[int, int] = (1000, 600),
+        figsize: tuple[int, int] = (1000, 600),
         interval=0.25,
         window_title="",
         theme=((60, 60, 60), "w"),
@@ -120,7 +120,7 @@ class QtPlot(BasePlot):
         self._orig_fig_size = figsize
 
         self.set_relative_window_position(fig_x_position, fig_y_position)
-        self.subplots: List[Union[PlotItem, ObjectProxy]] = [self.add_subplot()]
+        self.subplots: list[Union[PlotItem, ObjectProxy]] = [self.add_subplot()]
 
         if args or kwargs:
             self.add(*args, **kwargs)
@@ -572,7 +572,7 @@ class QtPlot(BasePlot):
         # set window back to original size
         self.win.resize(*self._orig_fig_size)
 
-    def fixUnitScaling(self, startranges: Optional[Dict[str, Dict[str, Union[float,int]]]]=None):
+    def fixUnitScaling(self, startranges: Optional[dict[str, dict[str, Union[float,int]]]]=None):
         """
         Disable SI rescaling if units are not standard units and limit
         ranges to data if known.

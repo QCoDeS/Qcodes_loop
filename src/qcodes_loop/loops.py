@@ -41,8 +41,9 @@ Supported commands to .each are:
 """
 import logging
 import time
+from collections.abc import Sequence
 from datetime import datetime
-from typing import Dict, Optional, Sequence
+from typing import Optional
 
 import numpy as np
 from qcodes.metadatable import Metadatable
@@ -64,7 +65,7 @@ from .actions import (
 
 log = logging.getLogger(__name__)
 
-_tprint_times: Dict[str, float] = {}
+_tprint_times: dict[str, float] = {}
 
 
 def wait_secs(finish_clock: float) -> float:

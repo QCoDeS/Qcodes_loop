@@ -6,7 +6,7 @@ import time
 from collections import OrderedDict
 from copy import deepcopy
 from traceback import format_exc
-from typing import TYPE_CHECKING, Any, Callable, Dict
+from typing import TYPE_CHECKING, Any, Callable
 
 import numpy as np
 
@@ -704,7 +704,7 @@ class DataSet(DelegateAttributes):
         return xarray_dataset_to_qcodes_dataset(xarray_dataset)
 
 
-class _PrettyPrintDict(Dict[Any, Any]):
+class _PrettyPrintDict(dict[Any, Any]):
     """
     simple wrapper for a dict to repr its items on separate lines
     with a bit of indentation

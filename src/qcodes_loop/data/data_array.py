@@ -1,5 +1,5 @@
 import collections.abc
-from typing import TYPE_CHECKING, Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 import numpy as np
 
@@ -566,7 +566,7 @@ class DataArray(DelegateAttributes):
         return data_array
 
 
-def data_array_to_xarray_dictionary(data_array: DataArray) -> Dict[str, Any]:
+def data_array_to_xarray_dictionary(data_array: DataArray) -> dict[str, Any]:
     """Convert DataArray to a dictionary in xarray format.
 
     Args:
@@ -577,7 +577,7 @@ def data_array_to_xarray_dictionary(data_array: DataArray) -> Dict[str, Any]:
     """
     key_mapping = {"unit": "units", "name": "name", "label": "long_name"}
 
-    data_dictionary: Dict[str, Any] = {"name": data_array.array_id}
+    data_dictionary: dict[str, Any] = {"name": data_array.array_id}
     data_dictionary["attrs"] = {
         target_key: getattr(data_array, key) for key, target_key in key_mapping.items()
     }
@@ -599,7 +599,7 @@ def data_array_to_xarray_dictionary(data_array: DataArray) -> Dict[str, Any]:
 
 
 def xarray_data_array_dictionary_to_data_array(
-        array_id: str, array_dictionary: Dict[str, Any], is_setpoint: bool = False, preset_data=None):
+        array_id: str, array_dictionary: dict[str, Any], is_setpoint: bool = False, preset_data=None):
     """Convert xarray dictionary to a DataArray
 
     This conversion is for bith the data array and the the internal xarray structure, e.g. the datavars and coords.

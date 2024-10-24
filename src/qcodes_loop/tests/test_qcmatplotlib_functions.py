@@ -1,5 +1,4 @@
 from itertools import product
-from typing import Tuple
 
 import numpy as np
 
@@ -9,7 +8,7 @@ from qcodes_loop.plots.qcmatplotlib import MatPlot
 def make_simulated_xyz(xrange: np.ndarray,
                        yrange: np.ndarray,
                        step: int,
-                       interrupt_at: int=0) -> Tuple[np.ndarray,
+                       interrupt_at: int=0) -> tuple[np.ndarray,
                                                      np.ndarray,
                                                      np.ndarray]:
     """
