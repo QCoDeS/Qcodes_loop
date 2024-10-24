@@ -105,7 +105,6 @@ filterwarnings = [
 ]
 
 [tool.ruff]
-target-version = "py38"
 
 [tool.ruff.lint]
 
