@@ -841,8 +841,11 @@ class ActiveLoop(Metadatable):
                     self.sweep_values.name, i, imax, time.time() - t0),
                     dt=self.progress_interval, tag='outerloop')
                 if i:
-                    tprint(f"Estimated finish time: {time.asctime(time.localtime(t0 + ((time.time() - t0) * imax / i)))}",
-                           dt=self.progress_interval, tag="finish")
+                    tprint(
+                        f"Estimated finish time: {time.asctime(time.localtime(t0 + ((time.time() - t0) * imax / i)))}",
+                        dt=self.progress_interval,
+                        tag="finish",
+                    )
 
             set_val = self.sweep_values.set(value)
 

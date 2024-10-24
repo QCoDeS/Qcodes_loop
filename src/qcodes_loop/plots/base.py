@@ -237,7 +237,9 @@ class BasePlot:
                 ndim = 1
 
             if len(args) not in (1, len(axletters)):
-                raise ValueError(f'{ndim}D data needs 1 or {len(axletters)} unnamed args')
+                raise ValueError(
+                    f"{ndim}D data needs 1 or {len(axletters)} unnamed args"
+                )
 
             arg_axletters = axletters[-len(args):]
 

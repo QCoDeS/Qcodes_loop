@@ -105,8 +105,9 @@ class QtPlot(BasePlot):
             # the remote process may have crashed. In that case try restarting
             # it
             if remote:
-                log.warning(f"Remote plot responded with {err} \n"
-                            "Restarting remote plot")
+                log.warning(
+                    f"Remote plot responded with {err} \n" "Restarting remote plot"
+                )
                 self._init_qt()
                 # _init_qt will set self.rpg so it cannot be None here
                 assert self.rpg is not None

@@ -267,7 +267,7 @@ class DataSet(DelegateAttributes):
 
         completed = False
         while True:
-            log.info(f'DataSet: {self.fraction_complete() * 100:.0f}% complete')
+            log.info(f"DataSet: {self.fraction_complete() * 100:.0f}% complete")
 
             # first check if we're done
             if self.sync() is False:
@@ -284,8 +284,9 @@ class DataSet(DelegateAttributes):
                     log.info(format_exc())
                     if failing[key]:
                         log.warning(
-                            f'background function {key} failed twice in a row, '
-                            'removing it')
+                            f"background function {key} failed twice in a row, "
+                            "removing it"
+                        )
                         del self.background_functions[key]
                     failing[key] = True
 
@@ -340,8 +341,9 @@ class DataSet(DelegateAttributes):
         # TODO: mask self.arrays so you *can't* set it directly?
 
         if data_array.array_id in self.arrays:
-            raise ValueError(f'array_id {data_array.array_id} already exists in this '
-                             'DataSet')
+            raise ValueError(
+                f"array_id {data_array.array_id} already exists in this " "DataSet"
+            )
         self.arrays[data_array.array_id] = data_array
 
         # back-reference to the DataSet
@@ -360,7 +362,8 @@ class DataSet(DelegateAttributes):
             sa = self.arrays[a].set_arrays
             if array_id in [a.array_id for a in sa]:
                 raise Exception(
-                    f'cannot remove array {array_id} as it is referenced by a')
+                    f"cannot remove array {array_id} as it is referenced by a"
+                )
         _ = self.arrays.pop(array_id)
         self.action_id_map = self._clean_array_ids(self.arrays.values())
 

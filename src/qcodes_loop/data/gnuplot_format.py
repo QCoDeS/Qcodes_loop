@@ -291,8 +291,7 @@ class GNUPlotFormat(Formatter):
 
         # Every group gets its own datafile
         for group in groups:
-            log.debug('Attempting to write the following '
-                      f'group: {group.name}')
+            log.debug("Attempting to write the following " f"group: {group.name}")
             # it might be useful to output the whole group as below but it is
             # very verbose
             #log.debug('containing {}'.format(group))
@@ -338,8 +337,7 @@ class GNUPlotFormat(Formatter):
 
                     one_point = self._data_point(group, indices)
                     f.write(self.separator.join(one_point) + self.terminator)
-                log.debug('Wrote to file from '
-                          f'{save_range[0]} to {save_range[1]+1}')
+                log.debug("Wrote to file from " f"{save_range[0]} to {save_range[1]+1}")
             # now that we've saved the data, mark it as such in the data.
             # we mark the data arrays and the inner setpoint array. Outer
             # setpoint arrays have different dimension (so would need a

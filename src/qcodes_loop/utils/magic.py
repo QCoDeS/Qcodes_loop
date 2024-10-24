@@ -117,7 +117,7 @@ class QCoDeSMagic(Magics):
                                                 ''.format(for_code,
                                                           for_opts["d"]))
                     else:
-                        line_representation += (f'qcodes.Loop({for_code}).each(\n')
+                        line_representation += f"qcodes.Loop({for_code}).each(\n"
                 else:
                     # Action in current loop
                     line_representation += f'{line},\n'

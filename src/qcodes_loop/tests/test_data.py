@@ -592,7 +592,9 @@ class TestDataSet(TestCase):
             try:
                 log_index_new = logs.index(line, log_index)
             except ValueError:
-                raise ValueError(f'line {line} not found after {log_index} in: \n {logs}')
+                raise ValueError(
+                    f"line {line} not found after {log_index} in: \n {logs}"
+                )
             self.assertTrue(log_index_new >= log_index, logs)
             log_index = log_index_new + len(line) + 1  # +1 for \n
         self.assertEqual(log_index, len(logs), logs)

@@ -92,7 +92,9 @@ class HDF5Format(Formatter):
         if '__format_tag' in data_set._h5_base_group.attrs:
             format_tag = data_set._h5_base_group.attrs['__format_tag']
             if format_tag != self._format_tag:
-                raise Exception(f'format tag {format_tag} does not match tag {self._format_tag} of file {location}')
+                raise Exception(
+                    f"format tag {format_tag} does not match tag {self._format_tag} of file {location}"
+                )
 
         for i, array_id in enumerate(
                 data_set._h5_base_group['Data Arrays'].keys()):
@@ -323,7 +325,7 @@ class HDF5Format(Formatter):
         elif list_type == 'list':
             item = [d[k] for k in sorted(d.keys())]
         else:
-            raise Exception(f'type {list_type} not supported')
+            raise Exception(f"type {list_type} not supported")
 
         return item
 
@@ -335,7 +337,7 @@ class HDF5Format(Formatter):
         if list_type == 'tuple' or list_type == 'list':
             item = {str(v[0]): v[1] for v in enumerate(item)}
         else:
-            raise Exception(f'type {type(item)} not supported')
+            raise Exception(f"type {type(item)} not supported")
 
         entry_point[key].create_group(list_type)
         self.write_dict_to_hdf5(
@@ -403,7 +405,8 @@ class HDF5Format(Formatter):
                         else:
                             logging.warning(
                                 f'List of type "{elt_type}" for "{key}":"{item}" not '
-                                'supported, storing as string')
+                                "supported, storing as string"
+                            )
                             entry_point.attrs[key] = str(item)
                     else:
                         self._write_list_group(key, item, entry_point, 'list')
@@ -414,7 +417,8 @@ class HDF5Format(Formatter):
             else:
                 logging.warning(
                     f'Type "{type(item)}" for "{key}":"{item}" not supported, '
-                    'storing as string')
+                    "storing as string"
+                )
                 entry_point.attrs[key] = str(item)
 
     def read_metadata(self, data_set: "qcodes_loop.data.data_set.DataSet"):

@@ -225,8 +225,9 @@ class DataArray(DelegateAttributes):
                 chained method calls.
         """
         if self.ndarray is not None and not self._preset:
-            raise RuntimeError('Only preset arrays can be nested after data '
-                               f'is initialized! {self}')
+            raise RuntimeError(
+                "Only preset arrays can be nested after data " f"is initialized! {self}"
+            )
 
         if set_array is None:
             if self.set_arrays:
