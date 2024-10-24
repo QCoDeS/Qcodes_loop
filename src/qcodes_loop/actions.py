@@ -145,7 +145,7 @@ class _Measure:
                                                'several things from the same '
                                                'instrument. Specifically, you '
                                                'asked for'
-                                               ' {}.'.format(duplicates))
+                                               f' {duplicates}.')
 
     def __call__(self, loop_indices, **ignore_kwargs):
         out_dict = {}

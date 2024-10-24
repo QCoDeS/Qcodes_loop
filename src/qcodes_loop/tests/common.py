@@ -43,7 +43,7 @@ def compare_dictionaries(
     value_err = ""
     old_path = path
     for k in dict_1.keys():
-        path = old_path + "[%s]" % k
+        path = old_path + f"[{k}]"
         if k not in dict_2.keys():
             key_err += f"Key {dict_1_name}{path} not in {dict_2_name}\n"
         else:
@@ -66,17 +66,8 @@ def compare_dictionaries(
 
                 if not match:
                     value_err += (
-                        'Value of "{}{}" ("{}", type"{}") not same as\n'
-                        '  "{}{}" ("{}", type"{}")\n\n'
-                    ).format(
-                        dict_1_name,
-                        path,
-                        dict_1[k],
-                        type(dict_1[k]),
-                        dict_2_name,
-                        path,
-                        dict_2[k],
-                        type(dict_2[k]),
+                        f'Value of "{dict_1_name}{path}" ("{dict_1[k]}", type"{type(dict_1[k])}") not same as\n'
+                        f'  "{dict_2_name}{path}" ("{dict_2[k]}", type"{type(dict_2[k])}")\n\n'
                     )
 
     for k in dict_2.keys():

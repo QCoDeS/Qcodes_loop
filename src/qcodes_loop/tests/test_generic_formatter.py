@@ -21,7 +21,7 @@ class TestFormatters(TestCase):
 
     def test_read_write(self):
         for f in self.formatters:
-            print('test formatter %s' % f)
+            print(f'test formatter {f}')
             dataset = DataSet2D(name="test_read_write")
             dataset.formatter = f()
 
