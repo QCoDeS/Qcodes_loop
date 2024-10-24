@@ -83,12 +83,6 @@ exclude_lines = [
     "if TYPE_CHECKING:",
 ]
 
-[tool.darker]
-isort = true
-
-[tool.isort]
-profile = "black"
-
 [tool.pytest.ini_options]
 minversion = "6.0"
 junit_family = "legacy"
@@ -104,6 +98,11 @@ filterwarnings = [
     "ignore:SelectableGroups dict interface is deprecated:DeprecationWarning"
 ]
 
+[tool.ruff]
+
+[tool.ruff.lint]
+
+select = ["I","UP"]
 [tool.setuptools.cmdclass]
 sdist = "versioningit.cmdclass.sdist"
 build_py = "versioningit.cmdclass.build_py"

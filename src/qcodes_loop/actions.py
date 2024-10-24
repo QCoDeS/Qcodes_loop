@@ -140,12 +140,14 @@ class _Measure:
             insts = [p[1] for p in paramcheck]
             if (len(set(insts)) != len(insts)):
                 duplicates = [p for p in paramcheck if insts.count(p[1]) > 1]
-                raise UnsafeThreadingException('Can not use threading to '
-                                               'read '
-                                               'several things from the same '
-                                               'instrument. Specifically, you '
-                                               'asked for'
-                                               ' {}.'.format(duplicates))
+                raise UnsafeThreadingException(
+                    "Can not use threading to "
+                    "read "
+                    "several things from the same "
+                    "instrument. Specifically, you "
+                    "asked for"
+                    f" {duplicates}."
+                )
 
     def __call__(self, loop_indices, **ignore_kwargs):
         out_dict = {}

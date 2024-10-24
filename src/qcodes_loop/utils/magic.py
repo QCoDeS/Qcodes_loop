@@ -117,8 +117,7 @@ class QCoDeSMagic(Magics):
                                                 ''.format(for_code,
                                                           for_opts["d"]))
                     else:
-                        line_representation += ('qcodes.Loop({}).each(\n'
-                                                ''.format(for_code))
+                        line_representation += f"qcodes.Loop({for_code}).each(\n"
                 else:
                     # Action in current loop
                     line_representation += f'{line},\n'
@@ -130,9 +129,7 @@ class QCoDeSMagic(Magics):
         # Add closing brackets for any remaining loops
         contents += ')' * previous_level + '\n'
         # Add dataset
-        contents += "{} = {}.get_data_set(name='{}')".format(data_name,
-                                                             loop_name,
-                                                             msmt_name)
+        contents += f"{data_name} = {loop_name}.get_data_set(name='{msmt_name}')"
         if k is not None:
             for line in lines[k + 1 :]:
                 contents += "\n" + line

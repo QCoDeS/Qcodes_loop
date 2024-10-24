@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v5.0.0
     hooks:
     - id: trailing-whitespace
     - id: end-of-file-fixer
@@ -12,30 +12,14 @@ repos:
     - id: debug-statements
     - id: mixed-line-ending
       args: ['--fix=no']
-  - repo: https://github.com/pycqa/isort
-    rev: 5.12.0
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # Ruff version.
+    rev: 'v0.7.0'
     hooks:
-      - id: isort
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.3.1
-    hooks:
-    - id: pyupgrade
-      args: ['--py38-plus']
+    - id: ruff
+      types_or: [python, pyi, jupyter, toml]
+      args: [ --fix, --exit-non-zero-on-fix ]
   - repo: https://github.com/akaihola/darker
-    rev: 1.6.1
+    rev: v2.1.1
     hooks:
       - id: darker
-        args: [-i]
-        additional_dependencies: [isort]
-  - repo: https://github.com/abravalheri/validate-pyproject
-    rev: v0.12.1
-    hooks:
-      - id: validate-pyproject
-  - repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.6.1
-    hooks:
-        - id: nbqa-pyupgrade
-          args: ['--py38-plus']
-          additional_dependencies: [pyupgrade]
-        - id: nbqa-isort
-          additional_dependencies: [isort]

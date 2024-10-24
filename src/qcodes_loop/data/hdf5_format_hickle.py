@@ -58,7 +58,7 @@ class HDF5FormatHickle(HDF5Format):
             self.read_metadata(data_set)
             deep_update(data_set.metadata, memory_metadata)
 
-        log.info('writing metadata to file %s' % self._metadata_file)
+        log.info(f"writing metadata to file {self._metadata_file}")
         fn = io_manager.join(location, self._metadata_file)
         with io_manager.open(fn, 'w', encoding='utf8') as snap_file:
             hickle.dump(data_set.metadata, snap_file)
@@ -73,7 +73,7 @@ class HDF5FormatHickle(HDF5Format):
         location = data_set.location
         fn = io_manager.join(location, self._metadata_file)
         if io_manager.list(fn):
-            log.info('reading metadata from file %s' % self._metadata_file)
-            with io_manager.open(fn, 'r') as snap_file:
+            log.info(f"reading metadata from file {self._metadata_file}")
+            with io_manager.open(fn, "r") as snap_file:
                 metadata = hickle.load(snap_file)
             data_set.metadata.update(metadata)

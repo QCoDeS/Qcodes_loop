@@ -41,8 +41,9 @@ Supported commands to .each are:
 """
 import logging
 import time
+from collections.abc import Sequence
 from datetime import datetime
-from typing import Dict, Optional, Sequence
+from typing import Optional
 
 import numpy as np
 from qcodes.metadatable import Metadatable
@@ -64,7 +65,7 @@ from .actions import (
 
 log = logging.getLogger(__name__)
 
-_tprint_times: Dict[str, float] = {}
+_tprint_times: dict[str, float] = {}
 
 
 def wait_secs(finish_clock: float) -> float:
@@ -841,9 +842,11 @@ class ActiveLoop(Metadatable):
                     self.sweep_values.name, i, imax, time.time() - t0),
                     dt=self.progress_interval, tag='outerloop')
                 if i:
-                    tprint("Estimated finish time: %s" % (
-                        time.asctime(time.localtime(t0 + ((time.time() - t0) * imax / i)))),
-                           dt=self.progress_interval, tag="finish")
+                    tprint(
+                        f"Estimated finish time: {time.asctime(time.localtime(t0 + ((time.time() - t0) * imax / i)))}",
+                        dt=self.progress_interval,
+                        tag="finish",
+                    )
 
             set_val = self.sweep_values.set(value)
 

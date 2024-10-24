@@ -6,7 +6,7 @@ import time
 from collections import OrderedDict
 from copy import deepcopy
 from traceback import format_exc
-from typing import TYPE_CHECKING, Any, Callable, Dict
+from typing import TYPE_CHECKING, Any, Callable
 
 import numpy as np
 
@@ -267,8 +267,7 @@ class DataSet(DelegateAttributes):
 
         completed = False
         while True:
-            log.info('DataSet: {:.0f}% complete'.format(
-                self.fraction_complete() * 100))
+            log.info(f"DataSet: {self.fraction_complete() * 100:.0f}% complete")
 
             # first check if we're done
             if self.sync() is False:
@@ -285,8 +284,9 @@ class DataSet(DelegateAttributes):
                     log.info(format_exc())
                     if failing[key]:
                         log.warning(
-                            'background function {} failed twice in a row, '
-                            'removing it'.format(key))
+                            f"background function {key} failed twice in a row, "
+                            "removing it"
+                        )
                         del self.background_functions[key]
                     failing[key] = True
 
@@ -341,8 +341,9 @@ class DataSet(DelegateAttributes):
         # TODO: mask self.arrays so you *can't* set it directly?
 
         if data_array.array_id in self.arrays:
-            raise ValueError('array_id {} already exists in this '
-                             'DataSet'.format(data_array.array_id))
+            raise ValueError(
+                f"array_id {data_array.array_id} already exists in this " "DataSet"
+            )
         self.arrays[data_array.array_id] = data_array
 
         # back-reference to the DataSet
@@ -361,7 +362,8 @@ class DataSet(DelegateAttributes):
             sa = self.arrays[a].set_arrays
             if array_id in [a.array_id for a in sa]:
                 raise Exception(
-                    'cannot remove array %s as it is referenced by a' % array_id)
+                    f"cannot remove array {array_id} as it is referenced by a"
+                )
         _ = self.arrays.pop(array_id)
         self.action_id_map = self._clean_array_ids(self.arrays.values())
 
@@ -702,7 +704,7 @@ class DataSet(DelegateAttributes):
         return xarray_dataset_to_qcodes_dataset(xarray_dataset)
 
 
-class _PrettyPrintDict(Dict[Any, Any]):
+class _PrettyPrintDict(dict[Any, Any]):
     """
     simple wrapper for a dict to repr its items on separate lines
     with a bit of indentation

@@ -317,7 +317,7 @@ class Slack(threading.Thread):
     def help_message(self):
         """Return simple help message"""
         cc = ", ".join("`" + str(k) + "`" for k in self.commands.keys())
-        return "\nAvailable commands: %s" % cc
+        return f"\nAvailable commands: {cc}"
 
     def handle_messages(self, messages):
         """
@@ -433,9 +433,7 @@ class Slack(threading.Thread):
         dataset = active_data_set()
         if dataset is not None:
             self.slack.chat_postMessage(
-                text="Measurement is {:.0f}% complete".format(
-                    100 * dataset.fraction_complete()
-                ),
+                text=f"Measurement is {100 * dataset.fraction_complete():.0f}% complete",
                 channel=channel,
             )
             self.slack.chat_postMessage(text=repr(dataset), channel=channel)

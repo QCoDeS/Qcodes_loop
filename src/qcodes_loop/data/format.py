@@ -2,7 +2,7 @@ import logging
 from collections import namedtuple
 from operator import attrgetter
 from traceback import format_exc
-from typing import TYPE_CHECKING, Set
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     import qcodes_loop.data.data_set
@@ -115,7 +115,7 @@ class Formatter:
 
         self.read_metadata(data_set)
 
-        ids_read: Set[str] = set()
+        ids_read: set[str] = set()
         for fn in data_files:
             with io_manager.open(fn, 'r') as f:
                 try:
