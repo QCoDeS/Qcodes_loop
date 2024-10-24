@@ -599,7 +599,11 @@ def data_array_to_xarray_dictionary(data_array: DataArray) -> dict[str, Any]:
 
 
 def xarray_data_array_dictionary_to_data_array(
-        array_id: str, array_dictionary: dict[str, Any], is_setpoint: bool = False, preset_data=None):
+    array_id: str,
+    array_dictionary: dict[str, Any],
+    is_setpoint: bool = False,
+    preset_data=None,
+):
     """Convert xarray dictionary to a DataArray
 
     This conversion is for bith the data array and the the internal xarray structure, e.g. the datavars and coords.

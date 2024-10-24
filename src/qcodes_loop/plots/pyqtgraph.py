@@ -64,7 +64,7 @@ class QtPlot(BasePlot):
     # in a remote process
     max_len = qcodes.config['gui']['pyqtmaxplots']
     max_len = cast(int, max_len)
-    plots: deque['QtPlot'] = deque(maxlen=max_len)
+    plots: deque["QtPlot"] = deque(maxlen=max_len)
 
     def __init__(
         self,
@@ -572,7 +572,9 @@ class QtPlot(BasePlot):
         # set window back to original size
         self.win.resize(*self._orig_fig_size)
 
-    def fixUnitScaling(self, startranges: Optional[dict[str, dict[str, Union[float,int]]]]=None):
+    def fixUnitScaling(
+        self, startranges: Optional[dict[str, dict[str, Union[float, int]]]] = None
+    ):
         """
         Disable SI rescaling if units are not standard units and limit
         ranges to data if known.
