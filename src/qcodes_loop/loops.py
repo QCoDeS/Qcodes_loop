@@ -838,9 +838,12 @@ class ActiveLoop(Metadatable):
 
         for i, value in enumerate(self.sweep_values):
             if self.progress_interval is not None:
-                tprint('loop %s: %d/%d (%.1f [s])' % (
-                    self.sweep_values.name, i, imax, time.time() - t0),
-                    dt=self.progress_interval, tag='outerloop')
+                elapsed_time = time.time() - t0
+                tprint(
+                    f"loop {self.sweep_values.name}: {i}/{imax} ({elapsed_time:.1f} [s])",
+                    dt=self.progress_interval,
+                    tag="outerloop",
+                )
                 if i:
                     tprint(
                         f"Estimated finish time: {time.asctime(time.localtime(t0 + ((time.time() - t0) * imax / i)))}",
