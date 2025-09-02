@@ -23,3 +23,7 @@ repos:
     rev: v3.0.0
     hooks:
       - id: darker
+        args:
+          - --formatter=ruff
+        additional_dependencies:
+          - ruff~=0.12.11
