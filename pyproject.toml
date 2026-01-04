@@ -64,7 +64,7 @@ test = [
 ]
 docs = [
     "nbsphinx>=0.8.9",
-    "pyside6>=6.8.0", # pyqtgraph tests
+    "pyside6>=6.8.0", # pyqtgraph examples
     "pyqtgraph>=0.13.0", # pyqtgraph examples
     "sphinx>=4.5.0,<8.3.0",
     "slack-sdk>=3.4.2", # slack docs
