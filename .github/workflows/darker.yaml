@@ -12,9 +12,9 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
-      - uses: akaihola/darker@v3.0.0
+      - uses: akaihola/darker@v2.1.1
         with:
           options: "--check --diff"
           src: "./src"
           revision: "origin/main..."
-          version: "@e3c210b5c1b91400c3f317b2474c10ab23bec1cf"
+          version: "2.1.1"
