@@ -285,8 +285,11 @@ class Loop(Metadatable):
         """
         return _attach_then_actions(self._copy(), actions, overwrite)
 
-    def snapshot_base(self, update: Optional[bool] = False,
-                      params_to_skip_update: Optional[Sequence[str]] = None):
+    def snapshot_base(
+        self,
+        update: bool | None = False,
+        params_to_skip_update: Sequence[str] | None = None,
+    ):
         """
         State of the loop as a JSON-compatible dict (everything that
         the custom JSON encoder class :class:'.NumpyJSONEncoder'
@@ -427,8 +430,9 @@ class ActiveLoop(Metadatable):
         """
         return _attach_bg_task(self, task, bg_final_task, min_delay)
 
-    def snapshot_base(self, update=False,
-                      params_to_skip_update: Optional[Sequence[str]] = None):
+    def snapshot_base(
+        self, update=False, params_to_skip_update: Sequence[str] | None = None
+    ):
         """Snapshot of this ActiveLoop's definition."""
         return {
             '__class__': full_class(self),

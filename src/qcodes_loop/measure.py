@@ -148,8 +148,11 @@ class Measure(Metadatable):
 
         return data_set
 
-    def snapshot_base(self, update: Optional[bool] = False,
-                      params_to_skip_update: Optional[Sequence[str]] = None):
+    def snapshot_base(
+        self,
+        update: bool | None = False,
+        params_to_skip_update: Sequence[str] | None = None,
+    ):
         return {
             '__class__': full_class(self),
             'actions': _actions_snapshot(self._dummyLoop.actions, update)
