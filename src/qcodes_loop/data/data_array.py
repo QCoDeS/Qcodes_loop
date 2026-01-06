@@ -550,7 +550,7 @@ class DataArray(DelegateAttributes):
 
     @classmethod
     def from_xarray(
-        cls, xarray_dataarray: "xr.DataArray", array_id: Optional[str] = None
+        cls, xarray_dataarray: "xr.DataArray", array_id: str | None = None
     ) -> "DataArray":
         """Create a DataArray from an xarray DataArray
 

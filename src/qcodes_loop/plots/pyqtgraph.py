@@ -120,7 +120,7 @@ class QtPlot(BasePlot):
         self._orig_fig_size = figsize
 
         self.set_relative_window_position(fig_x_position, fig_y_position)
-        self.subplots: list[Union[PlotItem, ObjectProxy]] = [self.add_subplot()]
+        self.subplots: list[PlotItem | ObjectProxy] = [self.add_subplot()]
 
         if args or kwargs:
             self.add(*args, **kwargs)
@@ -573,7 +573,7 @@ class QtPlot(BasePlot):
         self.win.resize(*self._orig_fig_size)
 
     def fixUnitScaling(
-        self, startranges: Optional[dict[str, dict[str, Union[float, int]]]] = None
+        self, startranges: dict[str, dict[str, float | int]] | None = None
     ):
         """
         Disable SI rescaling if units are not standard units and limit
