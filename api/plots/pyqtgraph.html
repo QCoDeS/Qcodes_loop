@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>qcodes_loop.plots.pyqtgraph &#8212; qcodes_loop  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="qcodes_loop.plots.qcmatplotlib" href="qcmatplotlib.html" />
+    <link rel="prev" title="qcodes_loop.plots.colors" href="colors.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-qcodes_loop.plots.pyqtgraph">
+<span id="qcodes-loop-plots-pyqtgraph"></span><h1>qcodes_loop.plots.pyqtgraph<a class="headerlink" href="#module-qcodes_loop.plots.pyqtgraph" title="Link to this heading">¶</a></h1>
+<p>Live plotting using pyqtgraph</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="qcodes_loop.plots.pyqtgraph.QtPlot">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">qcodes_loop.plots.pyqtgraph.</span></span><span class="sig-name descname"><span class="pre">QtPlot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(1000,</span> <span class="pre">600)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theme</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">((60,</span> <span class="pre">60,</span> <span class="pre">60),</span> <span class="pre">'w')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_x_position</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_y_position</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qcodes_loop.plots.pyqtgraph.QtPlot" title="Link to this definition">¶</a></dt>
+<dd><p>Plot x/y lines or x/y/z heatmap data. The first trace may be included
+in the constructor, other traces can be added with QtPlot.add().</p>
+<dl class="simple">
+<dt>For information on how <code class="docutils literal notranslate"><span class="pre">x/y/z</span> <span class="pre">*args</span></code> are handled see <code class="docutils literal notranslate"><span class="pre">add()</span></code> in the</dt><dd><p>base plotting class.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>*args</strong> – shortcut to provide the x/y/z data. See BasePlot.add</p></li>
+<li><p><strong>figsize</strong> – (width, height) tuple in pixels to pass to GraphicsWindow
+default (1000, 600)</p></li>
+<li><p><strong>interval</strong> – period in seconds between update checks
+default 0.25</p></li>
+<li><p><strong>theme</strong> – tuple of (foreground_color, background_color), where each is
+a valid Qt color. default (dark gray, white), opposite the
+pyqtgraph default of (white, black)</p></li>
+<li><p><strong>fig_x_pos</strong> – fraction of screen width to place the figure at
+0 is all the way to the left and
+1 is all the way to the right.
+default None let qt decide.</p></li>
+<li><p><strong>fig_y_pos</strong> – fraction of screen width to place the figure at
+0 is all the way to the top and
+1 is all the way to the bottom.
+default None let qt decide.</p></li>
+<li><p><strong>**kwargs</strong> – passed along to QtPlot.add() to add the first data trace</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="qcodes_loop.plots.pyqtgraph.QtPlot.add_to_plot">
+<span class="sig-name descname"><span class="pre">add_to_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subplot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qcodes_loop.plots.pyqtgraph.QtPlot.add_to_plot" title="Link to this definition">¶</a></dt>
+<dd><p>Add a trace the plot itself (typically called by self.add,
+which incorporates args into kwargs, so the subclass doesn’t
+need to worry about this). Data will be in <cite>x</cite>, <cite>y</cite>, and optionally
+<cite>z</cite>.</p>
+<p>Should be implemented by a subclass, and each call should append
+a dictionary to self.traces, containing at least {‘config’: kwargs}</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qcodes_loop.plots.pyqtgraph.QtPlot.autorange">
+<span class="sig-name descname"><span class="pre">autorange</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reset_colorbar</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#qcodes_loop.plots.pyqtgraph.QtPlot.autorange" title="Link to this definition">¶</a></dt>
+<dd><p>Auto range all limits in case they were changed during interactive
+plot. Reset colormap if changed and resize window to original size.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>reset_colorbar</strong> – Should the limits and colorscale of the colorbar
+be reset. Off by default</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qcodes_loop.plots.pyqtgraph.QtPlot.clear">
+<span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#qcodes_loop.plots.pyqtgraph.QtPlot.clear" title="Link to this definition">¶</a></dt>
+<dd><p>Clears the plot window and removes all subplots and traces
+so that the window can be reused.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qcodes_loop.plots.pyqtgraph.QtPlot.fixUnitScaling">
+<span class="sig-name descname"><span class="pre">fixUnitScaling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">startranges</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qcodes_loop.plots.pyqtgraph.QtPlot.fixUnitScaling" title="Link to this definition">¶</a></dt>
+<dd><p>Disable SI rescaling if units are not standard units and limit
+ranges to data if known.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>startranges</strong> – The plot can automatically infer the full ranges
+array parameters. However it has no knowledge of the
+ranges or regular parameters. You can explicitly pass
+in the values here as a dict of the form
+{‘paramtername’: {max: value, min:value}}</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qcodes_loop.plots.pyqtgraph.QtPlot.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qcodes_loop.plots.pyqtgraph.QtPlot.save" title="Link to this definition">¶</a></dt>
+<dd><p>Save current plot to filename, by default
+to the location corresponding to the default
+title.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Location of the file</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qcodes_loop.plots.pyqtgraph.QtPlot.setGeometry">
+<span class="sig-name descname"><span class="pre">setGeometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qcodes_loop.plots.pyqtgraph.QtPlot.setGeometry" title="Link to this definition">¶</a></dt>
+<dd><p>Set geometry of the plotting window</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qcodes_loop.plots.pyqtgraph.QtPlot.update_plot">
+<span class="sig-name descname"><span class="pre">update_plot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qcodes_loop.plots.pyqtgraph.QtPlot.update_plot" title="Link to this definition">¶</a></dt>
+<dd><p>Update the plot itself (typically called by self.update).
+Should be implemented by a subclass</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="qcodes_loop.plots.pyqtgraph.TransformState">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">qcodes_loop.plots.pyqtgraph.</span></span><span class="sig-name descname"><span class="pre">TransformState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">translate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revisit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qcodes_loop.plots.pyqtgraph.TransformState" title="Link to this definition">¶</a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="qcodes_loop.plots.pyqtgraph.TransformState.revisit">
+<span class="sig-name descname"><span class="pre">revisit</span></span><a class="headerlink" href="#qcodes_loop.plots.pyqtgraph.TransformState.revisit" title="Link to this definition">¶</a></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qcodes_loop.plots.pyqtgraph.TransformState.scale">
+<span class="sig-name descname"><span class="pre">scale</span></span><a class="headerlink" href="#qcodes_loop.plots.pyqtgraph.TransformState.scale" title="Link to this definition">¶</a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qcodes_loop.plots.pyqtgraph.TransformState.translate">
+<span class="sig-name descname"><span class="pre">translate</span></span><a class="headerlink" href="#qcodes_loop.plots.pyqtgraph.TransformState.translate" title="Link to this definition">¶</a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">qcodes_loop</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">QCoDeS_loop api</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../loops.html">qcodes_loop.loops</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../actions.html">qcodes_loop.actions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../measure.html">qcodes_loop.measure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data/index.html">qcodes_loop.data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../extensions/slack.html">qcodes_loop.extensions.slack</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">qcodes_loop.plots</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils/magic.html">qcodes_loop.utils.magic</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">QCoDeS_loop examples</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">QCoDeS_loop api</a><ul>
+  <li><a href="index.html">qcodes_loop.plots</a><ul>
+      <li>Previous: <a href="colors.html" title="previous chapter">qcodes_loop.plots.colors</a></li>
+      <li>Next: <a href="qcmatplotlib.html" title="next chapter">qcodes_loop.plots.qcmatplotlib</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2023, QCoDeS developers.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.0.4</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="../../_sources/api/plots/pyqtgraph.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

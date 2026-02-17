@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>qcodes_loop.data.gnuplot_format &#8212; qcodes_loop  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="qcodes_loop.data.hdf5_format" href="hdf5_format.html" />
+    <link rel="prev" title="qcodes_loop.data.format" href="format.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-qcodes_loop.data.gnuplot_format">
+<span id="qcodes-loop-data-gnuplot-format"></span><h1>qcodes_loop.data.gnuplot_format<a class="headerlink" href="#module-qcodes_loop.data.gnuplot_format" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="qcodes_loop.data.gnuplot_format.GNUPlotFormat">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">qcodes_loop.data.gnuplot_format.</span></span><span class="sig-name descname"><span class="pre">GNUPlotFormat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extension</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dat'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terminator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'\n'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'\t'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'#</span> <span class="pre">'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.15g'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qcodes_loop.data.gnuplot_format.GNUPlotFormat" title="Link to this definition">¶</a></dt>
+<dd><p>Saves data in one or more gnuplot-format files. We make one file for
+each set of matching dependent variables in the loop.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>extension</strong> (<em>str</em>) – file extension for data files. Defaults to
+‘dat’</p></li>
+<li><p><strong>terminator</strong> (<em>str</em>) – newline character(s) to use on write
+not used for reading, we will read any combination of ‘\r’
+and ‘\n’. Defaults to ‘\n’</p></li>
+<li><p><strong>separator</strong> (<em>str</em>) – field (column) separator, must be whitespace.
+Only used for writing, we will read with any whitespace separation.
+Defaults to ‘\t’.</p></li>
+<li><p><strong>comment</strong> (<em>str</em>) – lines starting with this are not data
+Comments are written with this full string, and identified on read
+by just the string after stripping whitespace. Defaults to ‘# ‘.</p></li>
+<li><p><strong>number_format</strong> (<em>str</em>) – from the format mini-language, how to
+format numeric data into a string. Defaults to ‘g’.</p></li>
+<li><p><strong>always_nest</strong> (<em>bool</em>) – whether to always make a folder for files
+or just make a single data file if all data has the same setpoints.
+Defaults to bool.</p></li>
+</ul>
+</dd>
+</dl>
+<p>These files are basically tab-separated values, but any quantity of
+any whitespace characters is accepted.</p>
+<p>Each row represents one setting of the setpoint variable(s)
+the setpoint variable(s) are in the first column(s)
+measured variable(s) come after.</p>
+<p>The data is preceded by comment lines (starting with #).
+We use three:</p>
+<ul class="simple">
+<li><p>one for the variable name</p></li>
+<li><p>the (longer) axis label, in quotes so a label can contain whitespace.</p></li>
+<li><p>for each dependent var, the (max) number of points in that dimension
+(this also tells us how many dependent vars we have in this file)</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># id1   id2     id3...</span>
+<span class="c1"># &quot;label1&quot;      &quot;label2&quot;        &quot;label3&quot;...</span>
+<span class="c1"># 100   250</span>
+<span class="mi">1</span>       <span class="mi">2</span>       <span class="mf">3.</span><span class="o">..</span>
+<span class="mi">2</span>       <span class="mi">3</span>       <span class="mf">4.</span><span class="o">..</span>
+</pre></div>
+</div>
+<p>For data of 2 dependent variables, gnuplot puts each inner loop into one
+block, then increments the outer loop in the next block, separated by a
+blank line.</p>
+<p>We extend this to an arbitrary quantity of dependent variables by using
+one blank line for each loop level that resets. (gnuplot <em>does</em> seem to
+use 2 blank lines sometimes, to denote a whole new dataset, which sort
+of corresponds to our situation.)</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="qcodes_loop.data.gnuplot_format.GNUPlotFormat.read_metadata">
+<span class="sig-name descname"><span class="pre">read_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_set</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qcodes_loop.data.gnuplot_format.GNUPlotFormat.read_metadata" title="Link to this definition">¶</a></dt>
+<dd><p>Read the metadata from this DataSet from storage.</p>
+<p>Subclasses must override this method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data_set</strong> – the data to read metadata into</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qcodes_loop.data.gnuplot_format.GNUPlotFormat.read_one_file">
+<span class="sig-name descname"><span class="pre">read_one_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ids_read</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qcodes_loop.data.gnuplot_format.GNUPlotFormat.read_one_file" title="Link to this definition">¶</a></dt>
+<dd><p>Called by Formatter.read to bring one data file into
+a DataSet. Setpoint data may be duplicated across multiple files,
+but each measured DataArray must only map to one file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_set</strong> – the DataSet we are reading into</p></li>
+<li><p><strong>f</strong> – a file-like object to read from</p></li>
+<li><p><strong>ids_read</strong> – a <cite>set</cite> of array_ids that we have already read.
+when you read an array, check that it’s not in this set (except
+setpoints, which can be in several files with different inner loop)
+then add it to the set so other files know not to read it again</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qcodes_loop.data.gnuplot_format.GNUPlotFormat.write">
+<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="data_set.html#qcodes_loop.data.data_set.DataSet" title="qcodes_loop.data.data_set.DataSet"><span class="pre">qcodes_loop.data.data_set.DataSet</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">io_manager</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">location</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_write</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_complete</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qcodes_loop.data.gnuplot_format.GNUPlotFormat.write" title="Link to this definition">¶</a></dt>
+<dd><p>Write updates in this DataSet to storage.</p>
+<p>Will choose append if possible, overwrite if not.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_set</strong> – the data we’re storing</p></li>
+<li><p><strong>io_manager</strong> (<em>io_manager</em>) – the base location to write to</p></li>
+<li><p><strong>location</strong> (<em>str</em>) – the file location within io_manager</p></li>
+<li><p><strong>only_complete</strong> (<em>bool</em>) – passed to match_save_range, answers the
+following question: Should we write all available new data,
+or only complete rows? Is used to make sure that everything
+gets written when the DataSet is finalised, even if some
+dataarrays are strange (like, full of nans)</p></li>
+<li><p><strong>filename</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Filename to save to. Will override
+the usual naming scheme and possibly overwrite files, so
+use with care. The file will be saved in the normal location.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qcodes_loop.data.gnuplot_format.GNUPlotFormat.write_metadata">
+<span class="sig-name descname"><span class="pre">write_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="data_set.html#qcodes_loop.data.data_set.DataSet" title="qcodes_loop.data.data_set.DataSet"><span class="pre">qcodes_loop.data.data_set.DataSet</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">io_manager</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">location</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_first</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qcodes_loop.data.gnuplot_format.GNUPlotFormat.write_metadata" title="Link to this definition">¶</a></dt>
+<dd><p>Write all metadata in this DataSet to storage.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_set</strong> – the data we’re storing</p></li>
+<li><p><strong>io_manager</strong> (<em>io_manager</em>) – the base location to write to</p></li>
+<li><p><strong>location</strong> (<em>str</em>) – the file location within io_manager</p></li>
+<li><p><strong>read_first</strong> (<em>Optional</em><em>[</em><em>bool</em><em>]</em>) – read previously saved metadata before
+writing? The current metadata will still be the used if
+there are changes, but if the saved metadata has information
+not present in the current metadata, it will be retained.
+Default True.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">qcodes_loop</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">QCoDeS_loop api</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../loops.html">qcodes_loop.loops</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../actions.html">qcodes_loop.actions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../measure.html">qcodes_loop.measure</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">qcodes_loop.data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../extensions/slack.html">qcodes_loop.extensions.slack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../plots/index.html">qcodes_loop.plots</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils/magic.html">qcodes_loop.utils.magic</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">QCoDeS_loop examples</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">QCoDeS_loop api</a><ul>
+  <li><a href="index.html">qcodes_loop.data</a><ul>
+      <li>Previous: <a href="format.html" title="previous chapter">qcodes_loop.data.format</a></li>
+      <li>Next: <a href="hdf5_format.html" title="next chapter">qcodes_loop.data.hdf5_format</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2023, QCoDeS developers.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.0.4</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="../../_sources/api/data/gnuplot_format.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
