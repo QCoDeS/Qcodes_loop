@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Comprehensive Plotting How-To &#8212; qcodes_loop  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Datasaving Examples" href="Datasaving%20examples.html" />
+    <link rel="prev" title="Combined Parameters" href="Combined%20Parameters.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="Comprehensive-Plotting-How-To">
+<h1>Comprehensive Plotting How-To<a class="headerlink" href="#Comprehensive-Plotting-How-To" title="Link to this heading">¶</a></h1>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">qcodes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">qc</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qcodes.parameters</span><span class="w"> </span><span class="kn">import</span> <span class="n">ManualParameter</span><span class="p">,</span> <span class="n">Parameter</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">qcodes_loop.data.data_set</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">qcodes_loop.data.location</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qcodes_loop.loops</span><span class="w"> </span><span class="kn">import</span> <span class="n">Loop</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qcodes_loop.plots.qcmatplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">MatPlot</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Logging hadn&#39;t been started.
+Activating auto-logging. Current session state plus future input saved.
+Filename       : C:\Users\a-halakh\.qcodes\logs\command_history.log
+Mode           : append
+Output logging : True
+Raw input log  : False
+Timestamping   : True
+State          : active
+Qcodes Logfile : C:\Users\a-halakh\.qcodes\logs\200324-17004-qcodes.log
+False
+</pre></div></div>
+</div>
+<p>Plotting data in QCoDeS can be done using either MatPlot or QTPlot, with matplotlib and pyqtgraph as backends, respectively. MatPlot and QTPlot tailor these plotting backends to QCoDeS, providing many features. For example, when plotting a DataArray in a DataSet, the corresponding ticks, labels, etc. are automatically added to the plot. Both MatPlot and QTPlot support live plotting while a measurement is running.</p>
+<p>One of the main differences between the two backends is that matplotlib is more strongly integrated with Jupyter Notebook, while pyqtgraph uses the PyQT GUI. For matplotlib, this has the advantage that plots can be displayed within a notebook (though it also has a gui). The advantage of pyqtgraph is that it can be easily embedded in PyQT GUI’s.</p>
+<p>This guide aims to provide a detailed guide on how to use each of the two plotting tools.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">loc_provider</span> <span class="o">=</span> <span class="n">qcodes_loop</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">FormatLocation</span><span class="p">(</span><span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;data/</span><span class="si">{date}</span><span class="s1">/#</span><span class="si">{counter}</span><span class="s1">_</span><span class="si">{name}</span><span class="s1">_</span><span class="si">{time}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="n">qcodes_loop</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">data_set</span><span class="o">.</span><span class="n">DataSet</span><span class="o">.</span><span class="n">location_provider</span> <span class="o">=</span> <span class="n">loc_provider</span>
+</pre></div>
+</div>
+</div>
+<section id="MatPlot">
+<h2>MatPlot<a class="headerlink" href="#MatPlot" title="Link to this heading">¶</a></h2>
+<p>The QCoDeS MatPlot relies on the matplotlib package, which is quite similar to Matlab’s plotting tools. It integrates nicely with Jupyter notebook, and as a result, interactive plots can be displayed within a notebook using the following command:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">matplotlib</span> inline
+</pre></div>
+</div>
+</div>
+<section id="Simple-1D-sweep">
+<h3>Simple 1D sweep<a class="headerlink" href="#Simple-1D-sweep" title="Link to this heading">¶</a></h3>
+<p>As a first example, we perform a simple 1D sweep. We create two trivial parameters, one for measuring a value, and the other for sweeping the value of the measured parameter.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">p_measure</span> <span class="o">=</span> <span class="n">ManualParameter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;measured_val&#39;</span><span class="p">)</span>
+<span class="n">p_sweep</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;sweep_val&#39;</span><span class="p">,</span> <span class="n">set_cmd</span><span class="o">=</span><span class="n">p_measure</span><span class="o">.</span><span class="n">set</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Next we perform a measurement, and attach the <code class="docutils literal notranslate"><span class="pre">update</span></code> method of the <code class="docutils literal notranslate"><span class="pre">plot</span></code> object to the loop, resulting in live plotting. Note that the resulting plot automatically has the correct x values and labels.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">loop</span> <span class="o">=</span> <span class="n">Loop</span><span class="p">(</span>
+    <span class="n">p_sweep</span><span class="o">.</span><span class="n">sweep</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">delay</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span><span class="o">.</span><span class="n">each</span><span class="p">(</span>
+        <span class="n">p_measure</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">loop</span><span class="o">.</span><span class="n">get_data_set</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;test_plotting_1D&#39;</span><span class="p">)</span>
+
+<span class="c1"># Create plot for measured data</span>
+<span class="n">plot</span> <span class="o">=</span> <span class="n">MatPlot</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">measured_val</span><span class="p">)</span>
+<span class="c1"># Attach updating of plot to loop</span>
+<span class="n">loop</span><span class="o">.</span><span class="n">with_bg_task</span><span class="p">(</span><span class="n">plot</span><span class="o">.</span><span class="n">update</span><span class="p">)</span>
+
+<span class="n">loop</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Started at 2020-03-24 18:39:35
+DataSet:
+   location = &#39;data/2020-03-24/#006_test_plotting_1D_18-39-35&#39;
+   &lt;Type&gt;   | &lt;array_id&gt;    | &lt;array.name&gt; | &lt;array.shape&gt;
+   Setpoint | sweep_val_set | sweep_val    | (21,)
+   Measured | measured_val  | measured_val | (21,)
+Finished at 2020-03-24 18:39:37
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+DataSet:
+   location = &#39;data/2020-03-24/#006_test_plotting_1D_18-39-35&#39;
+   &lt;Type&gt;   | &lt;array_id&gt;    | &lt;array.name&gt; | &lt;array.shape&gt;
+   Setpoint | sweep_val_set | sweep_val    | (21,)
+   Measured | measured_val  | measured_val | (21,)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_Comprehensive_Plotting_How-To_11_2.png" src="../_images/examples_Comprehensive_Plotting_How-To_11_2.png" />
+</div>
+</div>
+</section>
+<section id="Subplots">
+<h3>Subplots<a class="headerlink" href="#Subplots" title="Link to this heading">¶</a></h3>
+<p>In a measurement, there is often more than a single parameter that is measured. MatPlot supports multiple subplots, and upon initialization it will create a subplot for each of the arguments it receives.</p>
+<p>Let us create a second parameter that, when measured, always returns the value 10.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">p_measure2</span> <span class="o">=</span> <span class="n">ManualParameter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;measured_val_2&#39;</span><span class="p">,</span> <span class="n">initial_value</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>In the example below, three arguments are provided, resulting in three subplots. By default, subplots will be placed as columns on a single row, up to three columns. After this, a new row will be created (can be overridden in <code class="docutils literal notranslate"><span class="pre">MatPlot.max_subplot_columns</span></code>).</p>
+<p>Multiple DataArrays can also be plotted in a single subplot by passing them as a list in a single arg. As an example, notice how the first subplot shows multiple values.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">loop</span> <span class="o">=</span> <span class="n">Loop</span><span class="p">(</span>
+    <span class="n">p_sweep</span><span class="o">.</span><span class="n">sweep</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">delay</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span><span class="o">.</span><span class="n">each</span><span class="p">(</span>
+        <span class="n">p_measure</span><span class="p">,</span>
+        <span class="n">p_measure2</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">loop</span><span class="o">.</span><span class="n">get_data_set</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;test_plotting_1D_2&#39;</span><span class="p">)</span>
+
+<span class="c1"># Create plot for measured data</span>
+<span class="n">plot</span> <span class="o">=</span> <span class="n">MatPlot</span><span class="p">([</span><span class="n">data</span><span class="o">.</span><span class="n">measured_val</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">measured_val_2</span><span class="p">],</span> <span class="n">data</span><span class="o">.</span><span class="n">measured_val</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">measured_val_2</span><span class="p">)</span>
+<span class="c1"># Attach updating of plot to loop</span>
+<span class="n">loop</span><span class="o">.</span><span class="n">with_bg_task</span><span class="p">(</span><span class="n">plot</span><span class="o">.</span><span class="n">update</span><span class="p">)</span>
+
+<span class="n">loop</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Started at 2020-03-24 18:39:38
+DataSet:
+   location = &#39;data/2020-03-24/#007_test_plotting_1D_2_18-39-38&#39;
+   &lt;Type&gt;   | &lt;array_id&gt;     | &lt;array.name&gt;   | &lt;array.shape&gt;
+   Setpoint | sweep_val_set  | sweep_val      | (21,)
+   Measured | measured_val   | measured_val   | (21,)
+   Measured | measured_val_2 | measured_val_2 | (21,)
+Finished at 2020-03-24 18:39:41
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+DataSet:
+   location = &#39;data/2020-03-24/#007_test_plotting_1D_2_18-39-38&#39;
+   &lt;Type&gt;   | &lt;array_id&gt;     | &lt;array.name&gt;   | &lt;array.shape&gt;
+   Setpoint | sweep_val_set  | sweep_val      | (21,)
+   Measured | measured_val   | measured_val   | (21,)
+   Measured | measured_val_2 | measured_val_2 | (21,)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_Comprehensive_Plotting_How-To_16_2.png" src="../_images/examples_Comprehensive_Plotting_How-To_16_2.png" />
+</div>
+</div>
+<p>The data arrays don’t all have to be passed along during initialization of the MatPlot instance. We can access the subplots of the plot object as if the plot was a list (e.g. <code class="docutils literal notranslate"><span class="pre">plot[0]</span></code> would give you the first subplot). To illustrate this, the example below results in the same plot as above.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">loop</span> <span class="o">=</span> <span class="n">Loop</span><span class="p">(</span>
+    <span class="n">p_sweep</span><span class="o">.</span><span class="n">sweep</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">delay</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span><span class="o">.</span><span class="n">each</span><span class="p">(</span>
+        <span class="n">p_measure</span><span class="p">,</span>
+        <span class="n">p_measure2</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">loop</span><span class="o">.</span><span class="n">get_data_set</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;test_plotting_1D_3&#39;</span><span class="p">)</span>
+
+<span class="c1"># Create plot for measured data</span>
+<span class="n">plot</span> <span class="o">=</span> <span class="n">MatPlot</span><span class="p">(</span><span class="n">subplots</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">plot</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">measured_val</span><span class="p">)</span>
+<span class="n">plot</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">measured_val_2</span><span class="p">)</span>
+<span class="n">plot</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">measured_val</span><span class="p">)</span>
+<span class="n">plot</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">measured_val_2</span><span class="p">)</span>
+
+<span class="c1"># Attach updating of plot to loop</span>
+<span class="n">loop</span><span class="o">.</span><span class="n">with_bg_task</span><span class="p">(</span><span class="n">plot</span><span class="o">.</span><span class="n">update</span><span class="p">)</span>
+
+<span class="n">loop</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Started at 2020-03-24 18:39:42
+DataSet:
+   location = &#39;data/2020-03-24/#008_test_plotting_1D_3_18-39-41&#39;
+   &lt;Type&gt;   | &lt;array_id&gt;     | &lt;array.name&gt;   | &lt;array.shape&gt;
+   Setpoint | sweep_val_set  | sweep_val      | (21,)
+   Measured | measured_val   | measured_val   | (21,)
+   Measured | measured_val_2 | measured_val_2 | (21,)
+Finished at 2020-03-24 18:39:45
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+DataSet:
+   location = &#39;data/2020-03-24/#008_test_plotting_1D_3_18-39-41&#39;
+   &lt;Type&gt;   | &lt;array_id&gt;     | &lt;array.name&gt;   | &lt;array.shape&gt;
+   Setpoint | sweep_val_set  | sweep_val      | (21,)
+   Measured | measured_val   | measured_val   | (21,)
+   Measured | measured_val_2 | measured_val_2 | (21,)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_Comprehensive_Plotting_How-To_18_2.png" src="../_images/examples_Comprehensive_Plotting_How-To_18_2.png" />
+</div>
+</div>
+<p>Note that we passed the kwarg <code class="docutils literal notranslate"><span class="pre">subplots=3</span></code> to specify that we need 3 subplots. The <code class="docutils literal notranslate"><span class="pre">subplots</span></code> kwarg can be either an int or a tuple. If it is an int, it will segment the value such that there are at most three columns. If a tuple is provided, its first element indicates the number of rows, and the second the number of columns.</p>
+<p>Furthermore, the size of the figure is automatically computed based on the number of subplots. This can be overridden by passing the kwarg <code class="docutils literal notranslate"><span class="pre">figsize=(x_length,</span> <span class="pre">y_length)</span></code> upon initialization. Additionally, <code class="docutils literal notranslate"><span class="pre">MatPlot.default_figsize</span></code> can be overridden to change the default computed figsize for a given subplot dimensionality.</p>
+</section>
+<section id="2D-Plots">
+<h3>2D Plots<a class="headerlink" href="#2D-Plots" title="Link to this heading">¶</a></h3>
+<p>As illustrated below, MatPlot can also plot two-dimensional data arrays. MatPlot automatically handles setting the appropriate x- and y-axes, and also adds a colorbar by default. Note that we can also plot the individual traces of a 2D array, as shown in the first subplot below. This is done by passing all the elements (=rows) of the 2D array as a single argument using the splat (*) operator.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">p_sweep2</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;sweep_val_2&#39;</span><span class="p">,</span> <span class="n">set_cmd</span><span class="o">=</span><span class="n">p_measure2</span><span class="o">.</span><span class="n">set</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">loop</span> <span class="o">=</span> <span class="n">Loop</span><span class="p">(</span>
+    <span class="n">p_sweep</span><span class="o">.</span><span class="n">sweep</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">delay</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span><span class="o">.</span><span class="n">loop</span><span class="p">(</span>
+        <span class="n">p_sweep2</span><span class="o">.</span><span class="n">sweep</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">delay</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span><span class="o">.</span><span class="n">each</span><span class="p">(</span>
+            <span class="n">p_measure</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">loop</span><span class="o">.</span><span class="n">get_data_set</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;test_plotting_2D&#39;</span><span class="p">)</span>
+
+<span class="c1"># Create plot for measured data</span>
+<span class="n">plot</span> <span class="o">=</span> <span class="n">MatPlot</span><span class="p">([</span><span class="o">*</span><span class="n">data</span><span class="o">.</span><span class="n">measured_val</span><span class="p">],</span> <span class="n">data</span><span class="o">.</span><span class="n">measured_val</span><span class="p">)</span>
+<span class="c1"># Attach updating of plot to loop</span>
+<span class="n">loop</span><span class="o">.</span><span class="n">with_bg_task</span><span class="p">(</span><span class="n">plot</span><span class="o">.</span><span class="n">update</span><span class="p">)</span>
+
+<span class="n">loop</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Started at 2020-03-24 18:39:47
+DataSet:
+   location = &#39;data/2020-03-24/#009_test_plotting_2D_18-39-46&#39;
+   &lt;Type&gt;   | &lt;array_id&gt;      | &lt;array.name&gt; | &lt;array.shape&gt;
+   Setpoint | sweep_val_set   | sweep_val    | (21,)
+   Setpoint | sweep_val_2_set | sweep_val_2  | (21, 11)
+   Measured | measured_val    | measured_val | (21, 11)
+Finished at 2020-03-24 18:39:55
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+DataSet:
+   location = &#39;data/2020-03-24/#009_test_plotting_2D_18-39-46&#39;
+   &lt;Type&gt;   | &lt;array_id&gt;      | &lt;array.name&gt; | &lt;array.shape&gt;
+   Setpoint | sweep_val_set   | sweep_val    | (21,)
+   Setpoint | sweep_val_2_set | sweep_val_2  | (21, 11)
+   Measured | measured_val    | measured_val | (21, 11)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_Comprehensive_Plotting_How-To_23_2.png" src="../_images/examples_Comprehensive_Plotting_How-To_23_2.png" />
+</div>
+</div>
+<p>In the example above, the colorbar can be accessed via <code class="docutils literal notranslate"><span class="pre">plot[1].qcodes_colorbar</span></code>. This can be useful when you want to modify the colorbar (e.g. change the color limits <code class="docutils literal notranslate"><span class="pre">clim</span></code>).</p>
+<p>Note that the above plot was updated every time an inner loop was completed. This is because the update method was attached to the outer loop. If you instead want it to update within an outer loop, you have to attach it to an inner loop: <code class="docutils literal notranslate"><span class="pre">loop[0].with_bg_task(plot.update)</span></code> (<code class="docutils literal notranslate"><span class="pre">loop[0]</span></code> is the first action of the outer loop, which is the inner loop).</p>
+</section>
+<section id="Interfacing-with-Matplotlib">
+<h3>Interfacing with Matplotlib<a class="headerlink" href="#Interfacing-with-Matplotlib" title="Link to this heading">¶</a></h3>
+<p>As Matplot is built directly on top of Matplotlib, you can use standard Matplotlib functions which are readily available online in Matplotlib documentation as well as StackOverflow and similar sites. Here, we first perform the same measurement and obtain the corresponding figure:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">loop</span> <span class="o">=</span> <span class="n">Loop</span><span class="p">(</span>
+    <span class="n">p_sweep</span><span class="o">.</span><span class="n">sweep</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">delay</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span><span class="o">.</span><span class="n">loop</span><span class="p">(</span>
+        <span class="n">p_sweep2</span><span class="o">.</span><span class="n">sweep</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">delay</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span><span class="o">.</span><span class="n">each</span><span class="p">(</span>
+            <span class="n">p_measure</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">loop</span><span class="o">.</span><span class="n">get_data_set</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;test_plotting_2D_2&#39;</span><span class="p">)</span>
+
+<span class="c1"># Create plot for measured data</span>
+<span class="n">plot</span> <span class="o">=</span> <span class="n">MatPlot</span><span class="p">([</span><span class="o">*</span><span class="n">data</span><span class="o">.</span><span class="n">measured_val</span><span class="p">],</span> <span class="n">data</span><span class="o">.</span><span class="n">measured_val</span><span class="p">)</span>
+<span class="c1"># Attach updating of plot to loop</span>
+<span class="n">loop</span><span class="o">.</span><span class="n">with_bg_task</span><span class="p">(</span><span class="n">plot</span><span class="o">.</span><span class="n">update</span><span class="p">)</span>
+
+<span class="n">loop</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Started at 2020-03-24 18:39:57
+DataSet:
+   location = &#39;data/2020-03-24/#010_test_plotting_2D_2_18-39-56&#39;
+   &lt;Type&gt;   | &lt;array_id&gt;      | &lt;array.name&gt; | &lt;array.shape&gt;
+   Setpoint | sweep_val_set   | sweep_val    | (21,)
+   Setpoint | sweep_val_2_set | sweep_val_2  | (21, 11)
+   Measured | measured_val    | measured_val | (21, 11)
+Finished at 2020-03-24 18:40:05
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+DataSet:
+   location = &#39;data/2020-03-24/#010_test_plotting_2D_2_18-39-56&#39;
+   &lt;Type&gt;   | &lt;array_id&gt;      | &lt;array.name&gt; | &lt;array.shape&gt;
+   Setpoint | sweep_val_set   | sweep_val    | (21,)
+   Setpoint | sweep_val_2_set | sweep_val_2  | (21, 11)
+   Measured | measured_val    | measured_val | (21, 11)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_Comprehensive_Plotting_How-To_26_2.png" src="../_images/examples_Comprehensive_Plotting_How-To_26_2.png" />
+</div>
+</div>
+<p>To use the matplotlib api, we need access to the matplotlib Figure and Axis objects. Each subplot has its correspond Axis object, which are grouped together into a single Figure object. A subplot Axis can be accessed via its index. As an example, we will modify the title of the first axis:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ax</span> <span class="o">=</span> <span class="n">plot</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># shorthand for plot.subplots[0]</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;My left subplot title&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<p>Note that this returns the actual matplotlib Axis object. It does have the additional QCoDeS method <code class="docutils literal notranslate"><span class="pre">Axis.add()</span></code>, which allows easily adding of a QCoDeS DataArray. See <a class="reference external" href="http://matplotlib.org/api/axes_api.html">http://matplotlib.org/api/axes_api.html</a> for documentation of the Matplotlib Axes class.</p>
+<p>The Matplotlib Figure object can be accessed via the fig attribute on the QCoDeS Matplot object:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">plot</span><span class="o">.</span><span class="n">fig</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<p>See <a class="reference external" href="http://matplotlib.org/api/figure_api.html">http://matplotlib.org/api/figure_api.html</a> for documentation of the Matplotlib Figure class.</p>
+<p>Matplotlib also offers a second way to modify plots, namely pyplot. This can be imported via:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+</pre></div>
+</div>
+</div>
+<p>In pyplot, there is always an active axis and figure, similar to Matlab plotting. Every time a new plot is created, it will update the active axis and figure. The active Figure and Axis can be changed via <code class="docutils literal notranslate"><span class="pre">plt.scf(fig)</span></code> and <code class="docutils literal notranslate"><span class="pre">plt.sca(ax)</span></code>, respectively.</p>
+<p>As an example, the following code will change the title of the last-created plot (the right subplot of the previous figure):</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;My right subplot title&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_Comprehensive_Plotting_How-To_34_0.png" src="../_images/examples_Comprehensive_Plotting_How-To_34_0.png" />
+</div>
+</div>
+<p>See <a class="reference external" href="https://matplotlib.org/users/pyplot_tutorial.html">https://matplotlib.org/users/pyplot_tutorial.html</a> for documentation on Pyplot</p>
+</section>
+<section id="Event-handling">
+<h3>Event handling<a class="headerlink" href="#Event-handling" title="Link to this heading">¶</a></h3>
+<p>Since matplotlib is an interactive plotting tool, one can program actions that are dependent on events. There are many events, such as clicking on a plot, pressing a key, etc.</p>
+<p>As an example, we can attach a trivial function to occur when the plot object is closed. You can replace this with other functionality, such as stopping the loop.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">handle_close</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Plot closed&#39;</span><span class="p">)</span>
+
+<span class="n">plot</span> <span class="o">=</span> <span class="n">MatPlot</span><span class="p">()</span>
+<span class="n">plot</span><span class="o">.</span><span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">mpl_connect</span><span class="p">(</span><span class="s1">&#39;close_event&#39;</span><span class="p">,</span> <span class="n">handle_close</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_Comprehensive_Plotting_How-To_38_0.png" src="../_images/examples_Comprehensive_Plotting_How-To_38_0.png" />
+</div>
+</div>
+<p>On a related note, matplotlib also has widgets that can be added to plots, allowing additional interactivity with the dataset. An example would be adding a slider to show 2D plots of a 3D dataset (e.g. <a class="reference external" href="https://matplotlib.org/examples/widgets/slider_demo.html">https://matplotlib.org/examples/widgets/slider_demo.html</a>).</p>
+</section>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">qcodes_loop</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">QCoDeS_loop api</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">QCoDeS_loop examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="Combined%20Parameters.html">Combined Parameters</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Comprehensive Plotting How-To</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Datasaving%20examples.html">Datasaving Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Legacy.html">Legacy features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Measure%20without%20a%20Loop.html">Measure without a Loop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="The%20Location%20Formatter.html">The Location Formatter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="The%20Snapshot.html">The Snapshot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html">QCoDeS tutorial</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">QCoDeS_loop examples</a><ul>
+      <li>Previous: <a href="Combined%20Parameters.html" title="previous chapter">Combined Parameters</a></li>
+      <li>Next: <a href="Datasaving%20examples.html" title="next chapter">Datasaving Examples</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2023, QCoDeS developers.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.0.4</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="../_sources/examples/Comprehensive Plotting How-To.ipynb.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
