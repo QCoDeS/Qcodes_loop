@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>qcodes_loop.actions &#8212; qcodes_loop  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="qcodes_loop.measure" href="measure.html" />
+    <link rel="prev" title="qcodes_loop.loops" href="loops.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-qcodes_loop.actions">
+<span id="qcodes-loop-actions"></span><h1>qcodes_loop.actions<a class="headerlink" href="#module-qcodes_loop.actions" title="Link to this heading">¶</a></h1>
+<p>Actions, mainly to be executed in measurement Loops.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="qcodes_loop.actions.BreakIf">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">qcodes_loop.actions.</span></span><span class="sig-name descname"><span class="pre">BreakIf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">condition</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qcodes_loop.actions.BreakIf" title="Link to this definition">¶</a></dt>
+<dd><p>Loop action that breaks out of the loop if a condition is truthy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>condition</strong> (<em>Callable</em>) – a callable taking no arguments.
+Can be a simple function that returns truthy when it’s time to quit</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>TypeError</strong> – if condition is not a callable with no aguments.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">BreakIf</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">gates</span><span class="o">.</span><span class="n">chan1</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="qcodes_loop.actions.BreakIf.snapshot">
+<span class="sig-name descname"><span class="pre">snapshot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">update</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qcodes_loop.actions.BreakIf.snapshot" title="Link to this definition">¶</a></dt>
+<dd><p>Snapshots breakif action
+:param update: TODO not in use
+:type update: bool</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>snapshot</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="qcodes_loop.actions.Task">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">qcodes_loop.actions.</span></span><span class="sig-name descname"><span class="pre">Task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qcodes_loop.actions.Task" title="Link to this definition">¶</a></dt>
+<dd><p>A predefined task to be executed within a measurement Loop.</p>
+<p>The first argument should be a callable, to which any subsequent
+args and kwargs (which are evaluated before the loop starts) are passed.</p>
+<p>The args and kwargs are first evaluated if they are found to be callable.</p>
+<p>Keyword Args passed when the Task is called are ignored,
+but are accepted for compatibility with other things happening in a Loop.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> (<em>Callable</em>) – Function to executed</p></li>
+<li><p><strong>*args</strong> – pass to func, after evaluation if callable</p></li>
+<li><p><strong>**kwargs</strong> – pass to func, after evaluation if callable</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="qcodes_loop.actions.Task.snapshot">
+<span class="sig-name descname"><span class="pre">snapshot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">update</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qcodes_loop.actions.Task.snapshot" title="Link to this definition">¶</a></dt>
+<dd><p>Snapshots  task
+:param update: TODO not in use
+:type update: bool</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>snapshot</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="qcodes_loop.actions.UnsafeThreadingException">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">qcodes_loop.actions.</span></span><span class="sig-name descname"><span class="pre">UnsafeThreadingException</span></span><a class="headerlink" href="#qcodes_loop.actions.UnsafeThreadingException" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="qcodes_loop.actions.Wait">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">qcodes_loop.actions.</span></span><span class="sig-name descname"><span class="pre">Wait</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delay</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qcodes_loop.actions.Wait" title="Link to this definition">¶</a></dt>
+<dd><p>A simple class to tell a Loop to wait &lt;delay&gt; seconds.</p>
+<p>This is transformed into a Task within the Loop, such that
+it can do other things (monitor, check for halt) during the delay.</p>
+<p>But for use outside of a Loop, it is also callable (then it just sleeps)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>delay</strong> – seconds to delay</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – if delay is negative</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="qcodes_loop.actions.Wait.snapshot">
+<span class="sig-name descname"><span class="pre">snapshot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">update</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qcodes_loop.actions.Wait.snapshot" title="Link to this definition">¶</a></dt>
+<dd><p>Snapshots  delay
+:param update: TODO not in use
+:type update: bool</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>snapshot</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">qcodes_loop</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">QCoDeS_loop api</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="loops.html">qcodes_loop.loops</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">qcodes_loop.actions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="measure.html">qcodes_loop.measure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data/index.html">qcodes_loop.data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extensions/slack.html">qcodes_loop.extensions.slack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plots/index.html">qcodes_loop.plots</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils/magic.html">qcodes_loop.utils.magic</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">QCoDeS_loop examples</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">QCoDeS_loop api</a><ul>
+      <li>Previous: <a href="loops.html" title="previous chapter">qcodes_loop.loops</a></li>
+      <li>Next: <a href="measure.html" title="next chapter">qcodes_loop.measure</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2023, QCoDeS developers.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.0.4</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="../_sources/api/actions.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
