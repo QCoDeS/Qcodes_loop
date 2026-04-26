@@ -1,9 +1,10 @@
 """Actions, mainly to be executed in measurement Loops."""
+
 import time
 
 from qcodes.utils import is_function, thread_map
 
-_NO_SNAPSHOT = {'type': None, 'description': 'Action without snapshot'}
+_NO_SNAPSHOT = {"type": None, "description": "Action without snapshot"}
 
 
 # exception when threading is attempted used to simultaneously
@@ -16,7 +17,7 @@ def _actions_snapshot(actions, update):
     """Make a list of snapshots from a list of actions."""
     snapshot = []
     for action in actions:
-        if hasattr(action, 'snapshot'):
+        if hasattr(action, "snapshot"):
             snapshot.append(action.snapshot(update=update))
         else:
             snapshot.append(_NO_SNAPSHOT)
@@ -41,6 +42,7 @@ class Task:
         **kwargs: pass to func, after evaluation if callable
 
     """
+
     def __init__(self, func, *args, **kwargs):
         self.func = func
         self.args = args
@@ -62,7 +64,7 @@ class Task:
         Returns:
             dict: snapshot
         """
-        return {'type': 'Task', 'func': repr(self.func)}
+        return {"type": "Task", "func": repr(self.func)}
 
 
 class Wait:
@@ -80,6 +82,7 @@ class Wait:
     Raises:
         ValueError: if delay is negative
     """
+
     def __init__(self, delay):
         if not delay >= 0:
             raise ValueError(f"delay must be > 0, not {repr(delay)}")
@@ -98,7 +101,7 @@ class Wait:
         Returns:
             dict: snapshot
         """
-        return {'type': 'Wait', 'delay': self.delay}
+        return {"type": "Wait", "delay": self.delay}
 
 
 class _Measure:
@@ -107,6 +110,7 @@ class _Measure:
 
     This should not be constructed manually, only by an ActiveLoop.
     """
+
     def __init__(self, params_indices, data_set, use_threads):
         self.use_threads = use_threads and len(params_indices) > 1
         # the applicable DataSet.store function
@@ -124,7 +128,7 @@ class _Measure:
             if param._instrument:
                 paramcheck.append((param, param._instrument))
 
-            if hasattr(param, 'names'):
+            if hasattr(param, "names"):
                 part_ids = []
                 for i in range(len(param.names)):
                     param_id = data_set.action_id_map[action_indices + (i,)]
@@ -138,7 +142,7 @@ class _Measure:
 
         if self.use_threads:
             insts = [p[1] for p in paramcheck]
-            if (len(set(insts)) != len(insts)):
+            if len(set(insts)) != len(insts):
                 duplicates = [p for p in paramcheck if insts.count(p[1]) > 1]
                 raise UnsafeThreadingException(
                     "Can not use threading to "
@@ -156,8 +160,7 @@ class _Measure:
         else:
             out = [g() for g in self.getters]
 
-        for param_out, param_id, composite in zip(out, self.param_ids,
-                                                  self.composite):
+        for param_out, param_id, composite in zip(out, self.param_ids, self.composite):
             if composite:
                 for val, part_id in zip(param_out, composite):
                     out_dict[part_id] = val
@@ -168,7 +171,6 @@ class _Measure:
 
 
 class _Nest:
-
     """
     Wrapper to make a callable nested ActiveLoop.
 
@@ -184,7 +186,6 @@ class _Nest:
 
 
 class BreakIf:
-
     """
     Loop action that breaks out of the loop if a condition is truthy.
 
@@ -200,8 +201,7 @@ class BreakIf:
 
     def __init__(self, condition):
         if not is_function(condition, 0):
-            raise TypeError('BreakIf condition must be a callable with '
-                            'no arguments')
+            raise TypeError("BreakIf condition must be a callable with no arguments")
         self.condition = condition
 
     def __call__(self, **ignore_kwargs):
@@ -218,7 +218,7 @@ class BreakIf:
             dict: snapshot
 
         """
-        return {'type': 'BreakIf', 'condition': repr(self.condition)}
+        return {"type": "BreakIf", "condition": repr(self.condition)}
 
 
 class _QcodesBreak(Exception):

@@ -12,7 +12,7 @@ from qcodes_loop.measure import Measure
 
 class TestMeasure(TestCase):
     def setUp(self):
-        self.p1 = Parameter('P1', initial_value=1, get_cmd=None, set_cmd=None)
+        self.p1 = Parameter("P1", initial_value=1, get_cmd=None, set_cmd=None)
 
     def test_simple_scalar(self):
         data = Measure(self.p1).run_temp()
@@ -21,15 +21,15 @@ class TestMeasure(TestCase):
         self.assertEqual(data.P1.tolist(), [1])
         self.assertEqual(len(data.arrays), 2, data.arrays)
 
-        self.assertNotIn('loop', data.metadata)
+        self.assertNotIn("loop", data.metadata)
 
-        meta = data.metadata['measurement']
-        self.assertEqual(meta['__class__'], 'qcodes_loop.measure.Measure')
-        self.assertEqual(len(meta['actions']), 1)
-        self.assertFalse(meta['use_threads'])
+        meta = data.metadata["measurement"]
+        self.assertEqual(meta["__class__"], "qcodes_loop.measure.Measure")
+        self.assertEqual(len(meta["actions"]), 1)
+        self.assertFalse(meta["use_threads"])
 
-        ts_start = datetime.strptime(meta['ts_start'], '%Y-%m-%d %H:%M:%S')
-        ts_end = datetime.strptime(meta['ts_end'], '%Y-%m-%d %H:%M:%S')
+        ts_start = datetime.strptime(meta["ts_start"], "%Y-%m-%d %H:%M:%S")
+        ts_end = datetime.strptime(meta["ts_end"], "%Y-%m-%d %H:%M:%S")
         self.assertGreaterEqual(ts_end, ts_start)
 
     def test_simple_array(self):
@@ -55,35 +55,35 @@ class TestMeasureMulitParameter(TestCase):
         self.p1 = MultiSetPointParam()
 
     def test_metadata(self):
-        loc_fmt = 'data/{date}/#{counter}_{name}_{date}_{time}'
-        rcd = {'name': 'test_metadata'}
+        loc_fmt = "data/{date}/#{counter}_{name}_{date}_{time}"
+        rcd = {"name": "test_metadata"}
         param_name_1 = "multi_setpoint_param_this"
         param_name_2 = "multi_setpoint_param_that"
         setpoint_name = "multi_setpoint_param_this_setpoint_set"
         loc_provider = FormatLocation(fmt=loc_fmt, record=rcd)
         c = Measure(self.p1).run(location=loc_provider)
-        self.assertEqual(c.metadata['arrays'][param_name_1]['unit'], 'this unit')
-        self.assertEqual(c.metadata['arrays'][param_name_1]['name'], param_name_1)
-        self.assertEqual(c.metadata['arrays'][param_name_1]['label'], 'this label')
-        self.assertEqual(c.metadata['arrays'][param_name_1]['is_setpoint'], False)
-        self.assertEqual(c.metadata['arrays'][param_name_1]['shape'], (5,))
+        self.assertEqual(c.metadata["arrays"][param_name_1]["unit"], "this unit")
+        self.assertEqual(c.metadata["arrays"][param_name_1]["name"], param_name_1)
+        self.assertEqual(c.metadata["arrays"][param_name_1]["label"], "this label")
+        self.assertEqual(c.metadata["arrays"][param_name_1]["is_setpoint"], False)
+        self.assertEqual(c.metadata["arrays"][param_name_1]["shape"], (5,))
         assert_array_equal(getattr(c, param_name_1).ndarray, np.zeros(5))
 
-        self.assertEqual(c.metadata['arrays'][param_name_2]['unit'], 'that unit')
-        self.assertEqual(c.metadata['arrays'][param_name_2]['name'], param_name_2)
-        self.assertEqual(c.metadata['arrays'][param_name_2]['label'], 'that label')
-        self.assertEqual(c.metadata['arrays'][param_name_2]['is_setpoint'], False)
-        self.assertEqual(c.metadata['arrays'][param_name_2]['shape'], (5,))
+        self.assertEqual(c.metadata["arrays"][param_name_2]["unit"], "that unit")
+        self.assertEqual(c.metadata["arrays"][param_name_2]["name"], param_name_2)
+        self.assertEqual(c.metadata["arrays"][param_name_2]["label"], "that label")
+        self.assertEqual(c.metadata["arrays"][param_name_2]["is_setpoint"], False)
+        self.assertEqual(c.metadata["arrays"][param_name_2]["shape"], (5,))
         assert_array_equal(getattr(c, param_name_2).ndarray, np.ones(5))
 
-        self.assertEqual(c.metadata['arrays'][setpoint_name]['unit'],
-                         'this setpointunit')
-        self.assertEqual(c.metadata['arrays'][setpoint_name]['name'],
-                         "multi_setpoint_param_this_setpoint")
-        self.assertEqual(c.metadata['arrays'][setpoint_name]['label'],
-                         'this setpoint')
-        self.assertEqual(c.metadata['arrays'][setpoint_name]
-                         ['is_setpoint'], True)
-        self.assertEqual(c.metadata['arrays'][setpoint_name]['shape'],
-                         (5,))
+        self.assertEqual(
+            c.metadata["arrays"][setpoint_name]["unit"], "this setpointunit"
+        )
+        self.assertEqual(
+            c.metadata["arrays"][setpoint_name]["name"],
+            "multi_setpoint_param_this_setpoint",
+        )
+        self.assertEqual(c.metadata["arrays"][setpoint_name]["label"], "this setpoint")
+        self.assertEqual(c.metadata["arrays"][setpoint_name]["is_setpoint"], True)
+        self.assertEqual(c.metadata["arrays"][setpoint_name]["shape"], (5,))
         assert_array_equal(getattr(c, setpoint_name).ndarray, np.linspace(5, 9, 5))

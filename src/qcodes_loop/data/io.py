@@ -47,11 +47,10 @@ import shutil
 from contextlib import contextmanager
 from fnmatch import fnmatch
 
-ALLOWED_OPEN_MODES = ('r', 'w', 'a')
+ALLOWED_OPEN_MODES = ("r", "w", "a")
 
 
 class DiskIO:
-
     """
     Simple IO object to wrap disk operations with a custom base location.
 
@@ -88,7 +87,7 @@ class DiskIO:
             context manager yielding the open file
         """
         if mode not in ALLOWED_OPEN_MODES:
-            raise ValueError(f'mode {mode} not allowed in IO managers')
+            raise ValueError(f"mode {mode} not allowed in IO managers")
 
         filepath = self.to_path(filename)
 
@@ -106,7 +105,7 @@ class DiskIO:
         # note that this is NOT os.path.join - the difference is os.path.join
         # discards empty strings, so if you use it on a re.split absolute
         # path you will get a relative path!
-        return os.sep.join(re.split('[\\\\/]', location))
+        return os.sep.join(re.split("[\\\\/]", location))
 
     def to_path(self, location):
         """
@@ -186,7 +185,7 @@ class DiskIO:
         if not os.path.isdir(path):
             return []
 
-        matches = [fn for fn in os.listdir(path) if fnmatch(fn, pattern + '*')]
+        matches = [fn for fn in os.listdir(path) if fnmatch(fn, pattern + "*")]
         out = []
 
         for match in matches:
@@ -195,7 +194,7 @@ class DiskIO:
                 if maxdepth > 0:
                     # exact directory match - walk down to maxdepth
                     for root, dirs, files in os.walk(matchpath, topdown=True):
-                        depth = root[len(path):].count(os.path.sep)
+                        depth = root[len(path) :].count(os.path.sep)
                         if depth == maxdepth:
                             dirs[:] = []  # don't recurse any further
 
@@ -205,9 +204,9 @@ class DiskIO:
                 elif include_dirs:
                     out.append(self.join(search_dir, match))
 
-            elif (os.path.isfile(matchpath) and
-                  (fnmatch(match, pattern) or
-                   fnmatch(os.path.splitext(match)[0], pattern))):
+            elif os.path.isfile(matchpath) and (
+                fnmatch(match, pattern) or fnmatch(os.path.splitext(match)[0], pattern)
+            ):
                 # exact filename match, or match up to an extension
                 # note that we need fnmatch(match, pattern) in addition to the
                 # splitext test to cover the case of the base filename itself

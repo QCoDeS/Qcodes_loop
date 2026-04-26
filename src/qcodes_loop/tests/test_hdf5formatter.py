@@ -24,9 +24,10 @@ class TestHDF5_Format(TestCase):
         # Set up the location provider to always store test data in
         # "qc.tests.unittest_data
         cur_fp = os.path.dirname(__file__)
-        base_fp = os.path.abspath(os.path.join(cur_fp, '../unittest_data'))
+        base_fp = os.path.abspath(os.path.join(cur_fp, "../unittest_data"))
         self.loc_provider = FormatLocation(
-            fmt=base_fp+'/{date}/#{counter}_{name}_{time}')
+            fmt=base_fp + "/{date}/#{counter}_{name}_{time}"
+        )
         DataSet.location_provider = self.loc_provider
 
     def checkArraysEqual(self, a, b):
@@ -55,8 +56,7 @@ class TestHDF5_Format(TestCase):
         Test writing and reading a file back in
         """
         # location = self.locations[0]
-        data = DataSet1D(name='test1D_full_write',
-                         location=self.loc_provider)
+        data = DataSet1D(name="test1D_full_write", location=self.loc_provider)
         # print('Data location:', os.path.abspath(data.location))
         self.formatter.write(data)
         # Used because the formatter has no nice find file method
@@ -73,7 +73,7 @@ class TestHDF5_Format(TestCase):
         """
         Test writing and reading a file back in
         """
-        data = DataSet2D(location=self.loc_provider, name='test2D')
+        data = DataSet2D(location=self.loc_provider, name="test2D")
         self.formatter.write(data)
         # Test reading the same file through the DataSet.read
         data2 = DataSet(location=data.location, formatter=self.formatter)
@@ -86,13 +86,13 @@ class TestHDF5_Format(TestCase):
         self.formatter.close_file(data2)
 
     def test_incremental_write(self):
-        data = DataSet1D(location=self.loc_provider, name='test_incremental')
+        data = DataSet1D(location=self.loc_provider, name="test_incremental")
         location = data.location
         data_copy = DataSet1D(False)
 
         # # empty the data and mark it as unmodified
-        data.x_set[:] = float('nan')
-        data.y[:] = float('nan')
+        data.x_set[:] = float("nan")
+        data.y[:] = float("nan")
         data.x_set.modified_range = None
         data.y.modified_range = None
 
@@ -105,8 +105,8 @@ class TestHDF5_Format(TestCase):
             self.formatter.write(data)
         data2 = DataSet(location=location, formatter=self.formatter)
         data2.read()
-        self.checkArraysEqual(data2.arrays['x_set'], data_copy.arrays['x_set'])
-        self.checkArraysEqual(data2.arrays['y'], data_copy.arrays['y'])
+        self.checkArraysEqual(data2.arrays["x_set"], data_copy.arrays["x_set"])
+        self.checkArraysEqual(data2.arrays["y"], data_copy.arrays["y"])
 
         self.formatter.close_file(data)
         self.formatter.close_file(data2)
@@ -116,7 +116,7 @@ class TestHDF5_Format(TestCase):
         Test is based on the snapshot of the 1D dataset.
         Having a more complex snapshot in the metadata would be a better test.
         """
-        data = DataSet1D(location=self.loc_provider, name='test_metadata')
+        data = DataSet1D(location=self.loc_provider, name="test_metadata")
         data.snapshot()  # gets the snapshot, not added upon init
         self.formatter.write(data)  # write_metadata is included in write
         data2 = DataSet(location=data.location, formatter=self.formatter)
@@ -124,19 +124,18 @@ class TestHDF5_Format(TestCase):
         self.formatter.close_file(data)
         self.formatter.close_file(data2)
         metadata_equal, err_msg = compare_dictionaries(
-            data.metadata, data2.metadata,
-            'original_metadata', 'loaded_metadata')
-        self.assertTrue(metadata_equal, msg='\n'+err_msg)
+            data.metadata, data2.metadata, "original_metadata", "loaded_metadata"
+        )
+        self.assertTrue(metadata_equal, msg="\n" + err_msg)
 
     def test_loop_writing(self):
         # pass
         station = Station()
-        MockPar = MockParabola(name='Loop_writing_test')
+        MockPar = MockParabola(name="Loop_writing_test")
         station.add_component(MockPar)
         # # added to station to test snapshot at a later stage
         loop = Loop(MockPar.x[-100:100:20]).each(MockPar.skewed_parabola)
-        data1 = loop.run(name='MockLoop_hdf5_test',
-                         formatter=self.formatter)
+        data1 = loop.run(name="MockLoop_hdf5_test", formatter=self.formatter)
         data2 = DataSet(location=data1.location, formatter=self.formatter)
         data2.read()
         for key in data2.arrays.keys():
@@ -162,9 +161,9 @@ class TestHDF5_Format(TestCase):
             loaded_parameters_snapshot[param_name].pop("validators", None)
 
         metadata_equal, err_msg = compare_dictionaries(
-            data1.metadata, data2.metadata,
-            'original_metadata', 'loaded_metadata')
-        self.assertTrue(metadata_equal, msg='\n'+err_msg)
+            data1.metadata, data2.metadata, "original_metadata", "loaded_metadata"
+        )
+        self.assertTrue(metadata_equal, msg="\n" + err_msg)
         self.formatter.close_file(data1)
         self.formatter.close_file(data2)
         MockPar.close()
@@ -181,12 +180,14 @@ class TestHDF5_Format(TestCase):
     def test_loop_writing_2D(self):
         # pass
         station = Station()
-        MockPar = MockParabola(name='Loop_writing_test_2D')
+        MockPar = MockParabola(name="Loop_writing_test_2D")
         station.add_component(MockPar)
-        loop = Loop(MockPar.x[-100:100:20]).loop(
-            MockPar.y[-50:50:10]).each(MockPar.skewed_parabola)
-        data1 = loop.run(name='MockLoop_hdf5_test',
-                         formatter=self.formatter)
+        loop = (
+            Loop(MockPar.x[-100:100:20])
+            .loop(MockPar.y[-50:50:10])
+            .each(MockPar.skewed_parabola)
+        )
+        data1 = loop.run(name="MockLoop_hdf5_test", formatter=self.formatter)
         data2 = DataSet(location=data1.location, formatter=self.formatter)
         data2.read()
         for key in data2.arrays.keys():
@@ -221,15 +222,15 @@ class TestHDF5_Format(TestCase):
             loaded_parameters_snapshot[param_name].pop("validators", None)
 
         metadata_equal, err_msg = compare_dictionaries(
-            data1.metadata, data2.metadata,
-            'original_metadata', 'loaded_metadata')
-        self.assertTrue(metadata_equal, msg='\n'+err_msg)
+            data1.metadata, data2.metadata, "original_metadata", "loaded_metadata"
+        )
+        self.assertTrue(metadata_equal, msg="\n" + err_msg)
         self.formatter.close_file(data1)
         self.formatter.close_file(data2)
         MockPar.close()
 
     def test_closed_file(self):
-        data = DataSet1D(location=self.loc_provider, name='test_closed')
+        data = DataSet1D(location=self.loc_provider, name="test_closed")
         # closing before file is written should not raise error
         self.formatter.close_file(data)
         self.formatter.write(data)
@@ -239,52 +240,55 @@ class TestHDF5_Format(TestCase):
         self.formatter.close_file(data)
 
     def test_reading_into_existing_data_array(self):
-        data = DataSet1D(location=self.loc_provider,
-                         name='test_read_existing')
+        data = DataSet1D(location=self.loc_provider, name="test_read_existing")
         # closing before file is written should not raise error
         self.formatter.write(data)
 
-        data2 = DataSet(location=data.location,
-                        formatter=self.formatter)
-        d_array = DataArray(name='dummy',
-                            array_id='x_set',  # existing array id in data
-                            label='bla', unit='a.u.', is_setpoint=False,
-                            set_arrays=(), preset_data=np.zeros(5))
+        data2 = DataSet(location=data.location, formatter=self.formatter)
+        d_array = DataArray(
+            name="dummy",
+            array_id="x_set",  # existing array id in data
+            label="bla",
+            unit="a.u.",
+            is_setpoint=False,
+            set_arrays=(),
+            preset_data=np.zeros(5),
+        )
         data2.add_array(d_array)
         # test if d_array refers to same as array x_set in dataset
-        self.assertTrue(d_array is data2.arrays['x_set'])
+        self.assertTrue(d_array is data2.arrays["x_set"])
         data2.read()
         # test if reading did not overwrite dataarray
-        self.assertTrue(d_array is data2.arrays['x_set'])
+        self.assertTrue(d_array is data2.arrays["x_set"])
         # Testing if data was correctly updated into dataset
-        self.checkArraysEqual(data2.arrays['x_set'], data.arrays['x_set'])
-        self.checkArraysEqual(data2.arrays['y'], data.arrays['y'])
+        self.checkArraysEqual(data2.arrays["x_set"], data.arrays["x_set"])
+        self.checkArraysEqual(data2.arrays["y"], data.arrays["y"])
         self.formatter.close_file(data)
         self.formatter.close_file(data2)
 
     def test_dataset_closing(self):
-        data = DataSet1D(location=self.loc_provider, name='test_closing')
+        data = DataSet1D(location=self.loc_provider, name="test_closing")
         self.formatter.write(data, flush=False)
         fp = data._h5_base_group.filename
         self.formatter.close_file(data)
-        fp3 = fp[:-5]+'_3.hdf5'
+        fp3 = fp[:-5] + "_3.hdf5"
         copy(fp, fp3)
         # Should not raise an error because the file was properly closed
-        F3 = h5py.File(fp3, mode='a')
+        F3 = h5py.File(fp3, mode="a")
 
     def test_dataset_flush_after_write(self):
-        data = DataSet1D(name='test_flush', location=self.loc_provider)
+        data = DataSet1D(name="test_flush", location=self.loc_provider)
         self.formatter.write(data, flush=True)
         fp = data._h5_base_group.filename
-        fp2 = fp[:-5]+'_2.hdf5'
+        fp2 = fp[:-5] + "_2.hdf5"
         # the file cannot be copied unless the ref is deleted first
         del data._h5_base_group
         copy(fp, fp2)
         # Opening this copy should not raise an error
-        F2 = h5py.File(fp2, mode='a')
+        F2 = h5py.File(fp2, mode="a")
 
     def test_dataset_finalize_closes_file(self):
-        data = DataSet1D(name='test_finalize', location=self.loc_provider)
+        data = DataSet1D(name="test_finalize", location=self.loc_provider)
         # closing before file is written should not raise error
         self.formatter.write(data, flush=False)
         fp = data._h5_base_group.filename
@@ -294,14 +298,13 @@ class TestHDF5_Format(TestCase):
         data.finalize()
         # the file cannot be copied unless the ref is deleted first
         del data._h5_base_group
-        fp3 = fp[:-5]+'_4.hdf5'
+        fp3 = fp[:-5] + "_4.hdf5"
         copy(fp, fp3)
         # Should now not raise an error because the file was properly closed
-        F3 = h5py.File(fp3, mode='a')
+        F3 = h5py.File(fp3, mode="a")
 
     def test_double_closing_gives_warning(self):
-        data = DataSet1D(name='test_double_close',
-                         location=self.loc_provider)
+        data = DataSet1D(name="test_double_close", location=self.loc_provider)
         # closing before file is written should not raise error
         self.formatter.write(data, flush=False)
         self.formatter.close_file(data)
@@ -310,42 +313,47 @@ class TestHDF5_Format(TestCase):
             self.formatter.close_file(data)
 
     def test_dataset_with_missing_attrs(self):
-        data1 = new_data(formatter=self.formatter, location=self.loc_provider,
-                         name='test_missing_attr')
-        arr = DataArray(array_id='arr', preset_data=np.linspace(0, 10, 21))
+        data1 = new_data(
+            formatter=self.formatter,
+            location=self.loc_provider,
+            name="test_missing_attr",
+        )
+        arr = DataArray(array_id="arr", preset_data=np.linspace(0, 10, 21))
         data1.add_array(arr)
         data1.write()
         # data2 = DataSet(location=data1.location, formatter=self.formatter)
         # data2.read()
-        data2 = load_data(location=data1.location,
-                          formatter=self.formatter)
+        data2 = load_data(location=data1.location, formatter=self.formatter)
         # cannot use the check arrays equal as I expect the attributes
         # to not be equal
-        np.testing.assert_array_equal(data2.arrays['arr'], data1.arrays['arr'])
+        np.testing.assert_array_equal(data2.arrays["arr"], data1.arrays["arr"])
 
     def test_read_writing_dicts_withlists_to_hdf5(self):
         some_dict = {}
-        some_dict['list_of_ints'] = list(np.arange(5))
-        some_dict['list_of_floats'] = list(np.arange(5.1))
-        some_dict['list_of_mixed_type'] = list([1, '1'])
-        fp = self.loc_provider(
-            io=DataSet.default_io,
-            record={'name': 'test_dict_writing'})+'.hdf5'
-        F = h5py.File(fp, mode='a')
+        some_dict["list_of_ints"] = list(np.arange(5))
+        some_dict["list_of_floats"] = list(np.arange(5.1))
+        some_dict["list_of_mixed_type"] = list([1, "1"])
+        fp = (
+            self.loc_provider(
+                io=DataSet.default_io, record={"name": "test_dict_writing"}
+            )
+            + ".hdf5"
+        )
+        F = h5py.File(fp, mode="a")
 
         self.formatter.write_dict_to_hdf5(some_dict, F)
         new_dict = {}
         self.formatter.read_dict_from_hdf5(new_dict, F)
         dicts_equal, err_msg = compare_dictionaries(
-            some_dict, new_dict,
-            'written_dict', 'loaded_dict')
-        self.assertTrue(dicts_equal, msg='\n'+err_msg)
+            some_dict, new_dict, "written_dict", "loaded_dict"
+        )
+        self.assertTrue(dicts_equal, msg="\n" + err_msg)
 
     def test_str_to_bool(self):
-        self.assertEqual(str_to_bool('True'), True)
-        self.assertEqual(str_to_bool('False'), False)
+        self.assertEqual(str_to_bool("True"), True)
+        self.assertEqual(str_to_bool("False"), False)
         with self.assertRaises(ValueError):
-            str_to_bool('flse')
+            str_to_bool("flse")
 
     def test_writing_unsupported_types_to_hdf5(self):
         """
@@ -354,34 +362,38 @@ class TestHDF5_Format(TestCase):
             - nested dataset
         """
         some_dict = {}
-        some_dict['list_of_ints'] = list(np.arange(5))
-        some_dict['list_of_floats'] = list(np.arange(5.1))
-        some_dict['weird_dict'] = {'a': 5}
-        data1 = new_data(formatter=self.formatter, location=self.loc_provider,
-                         name='test_missing_attr')
-        some_dict['nested_dataset'] = data1
+        some_dict["list_of_ints"] = list(np.arange(5))
+        some_dict["list_of_floats"] = list(np.arange(5.1))
+        some_dict["weird_dict"] = {"a": 5}
+        data1 = new_data(
+            formatter=self.formatter,
+            location=self.loc_provider,
+            name="test_missing_attr",
+        )
+        some_dict["nested_dataset"] = data1
 
-        some_dict['list_of_dataset'] = [data1, data1]
+        some_dict["list_of_dataset"] = [data1, data1]
 
-        fp = self.loc_provider(
-            io=DataSet.default_io,
-            record={'name': 'test_dict_writing'})+'.hdf5'
-        F = h5py.File(fp, mode='a')
+        fp = (
+            self.loc_provider(
+                io=DataSet.default_io, record={"name": "test_dict_writing"}
+            )
+            + ".hdf5"
+        )
+        F = h5py.File(fp, mode="a")
         self.formatter.write_dict_to_hdf5(some_dict, F)
         new_dict = {}
         self.formatter.read_dict_from_hdf5(new_dict, F)
         # objects are not identical but the string representation should be
-        self.assertEqual(str(some_dict['nested_dataset']),
-                         new_dict['nested_dataset'])
-        self.assertEqual(str(some_dict['list_of_dataset']),
-                         new_dict['list_of_dataset'])
+        self.assertEqual(str(some_dict["nested_dataset"]), new_dict["nested_dataset"])
+        self.assertEqual(str(some_dict["list_of_dataset"]), new_dict["list_of_dataset"])
 
-        F['weird_dict'].attrs['list_type'] = 'unsuported_list_type'
+        F["weird_dict"].attrs["list_type"] = "unsuported_list_type"
         with self.assertRaises(NotImplementedError):
             self.formatter.read_dict_from_hdf5(new_dict, F)
 
     def test_writing_metadata(self):
         # test for issue reported in 442
-        data = DataSet2D(location=self.loc_provider, name='MetaDataTest')
-        data.metadata = {'a': ['hi', 'there']}
+        data = DataSet2D(location=self.loc_provider, name="MetaDataTest")
+        data.metadata = {"a": ["hi", "there"]}
         self.formatter.write(data, write_metadata=True)

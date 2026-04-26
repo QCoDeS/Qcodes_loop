@@ -106,7 +106,7 @@ class Formatter:
 
         data_files = io_manager.list(location)
         if not data_files:
-            raise OSError('no data found at ' + location)
+            raise OSError("no data found at " + location)
 
         # in case the DataArrays exist but haven't been initialized
         for array in data_set.arrays.values():
@@ -117,11 +117,11 @@ class Formatter:
 
         ids_read: set[str] = set()
         for fn in data_files:
-            with io_manager.open(fn, 'r') as f:
+            with io_manager.open(fn, "r") as f:
                 try:
                     self.read_one_file(data_set, f, ids_read)
                 except ValueError:
-                    log.warning('error reading file ' + fn)
+                    log.warning("error reading file " + fn)
                     log.warning(format_exc())
 
     def write_metadata(
@@ -130,7 +130,7 @@ class Formatter:
         io_manager,
         location,
         read_first=True,
-        **kwargs
+        **kwargs,
     ):
         """
         Write the metadata for this DataSet to storage.
@@ -221,7 +221,7 @@ class Formatter:
             * no new data can be found
         """
         inner_setpoint = group.set_arrays[-1]
-        full_dim_data = (inner_setpoint, ) + group.data
+        full_dim_data = (inner_setpoint,) + group.data
 
         # always return None if there are no modifications,
         # even if there are last_saved_index inconsistencies
@@ -236,29 +236,32 @@ class Formatter:
 
         if last_saved_index is None or not file_exists:
             if last_saved_index is None and file_exists:
-                log.warning("Inconsistent file information. "
-                            "last_save_index is None but file exists. "
-                            "Will overwrite")
+                log.warning(
+                    "Inconsistent file information. "
+                    "last_save_index is None but file exists. "
+                    "Will overwrite"
+                )
             if last_saved_index is not None and not file_exists:
-                log.warning("Inconsistent file information. "
-                            "last_save_index is not None but file does not "
-                            "exist. Will rewrite from scratch")
-            return self._match_save_range_whole_file(
-                full_dim_data, only_complete)
+                log.warning(
+                    "Inconsistent file information. "
+                    "last_save_index is not None but file does not "
+                    "exist. Will rewrite from scratch"
+                )
+            return self._match_save_range_whole_file(full_dim_data, only_complete)
 
         # force overwrite if inconsistent last_saved_index
         for array in group.data:
             if array.last_saved_index != last_saved_index:
-                return self._match_save_range_whole_file(
-                    full_dim_data, only_complete)
+                return self._match_save_range_whole_file(full_dim_data, only_complete)
 
         return self._match_save_range_incremental(
-            full_dim_data, last_saved_index, only_complete)
+            full_dim_data, last_saved_index, only_complete
+        )
 
     @staticmethod
     def _match_save_range_whole_file(arrays, only_complete):
         max_save = None
-        agg = (min if only_complete else max)
+        agg = min if only_complete else max
         for array in arrays:
             array_max = array.last_saved_index
             if array_max is None:
@@ -266,8 +269,7 @@ class Formatter:
             mr = array.modified_range
             if mr:
                 array_max = max(array_max, mr[1])
-            max_save = (array_max if max_save is None else
-                        agg(max_save, array_max))
+            max_save = array_max if max_save is None else agg(max_save, array_max)
 
         if max_save >= 0:
             return (0, max_save)
@@ -287,10 +289,9 @@ class Formatter:
             mod_ranges.append(mr)
 
         mod_range = mod_ranges[0]
-        agg = (min if only_complete else max)
+        agg = min if only_complete else max
         for mr in mod_ranges[1:]:
-            mod_range = (min(mod_range[0], mr[0]),
-                         agg(mod_range[1], mr[1]))
+            mod_range = (min(mod_range[0], mr[0]), agg(mod_range[1], mr[1]))
 
         if last_saved_index >= mod_range[1]:
             return (0, last_saved_index)
@@ -319,8 +320,7 @@ class Formatter:
               the setpoint array ids.
         """
 
-        set_array_sets = tuple({array.set_arrays
-                                   for array in arrays.values()})
+        set_array_sets = tuple({array.set_arrays for array in arrays.values()})
         all_set_arrays = set()
         for set_array_set in set_array_sets:
             all_set_arrays.update(set_array_set)
@@ -334,21 +334,28 @@ class Formatter:
                 grouped_data[i].append(array)
 
         out = []
-        id_getter = attrgetter('array_id')
+        id_getter = attrgetter("array_id")
         for set_arrays, data in zip(set_array_sets, grouped_data):
             leni = len(set_arrays)
-            if not data and any(1 for other_set_arrays in set_array_sets if
-                                len(other_set_arrays) > leni and
-                                other_set_arrays[:leni] == set_arrays):
+            if not data and any(
+                1
+                for other_set_arrays in set_array_sets
+                if len(other_set_arrays) > leni
+                and other_set_arrays[:leni] == set_arrays
+            ):
                 # this is an outer loop that doesn't have any data of its own,
                 # so skip it.
                 # Inner-loop setpoints with no data is weird (we set values
                 # but didn't measure anything there?) but we should keep it.
                 continue
 
-            group_name = '_'.join(sai.array_id for sai in set_arrays)
-            out.append(self.ArrayGroup(shape=set_arrays[-1].shape,
-                                       set_arrays=set_arrays,
-                                       data=tuple(sorted(data, key=id_getter)),
-                                       name=group_name))
+            group_name = "_".join(sai.array_id for sai in set_arrays)
+            out.append(
+                self.ArrayGroup(
+                    shape=set_arrays[-1].shape,
+                    set_arrays=set_arrays,
+                    data=tuple(sorted(data, key=id_getter)),
+                    name=group_name,
+                )
+            )
         return out

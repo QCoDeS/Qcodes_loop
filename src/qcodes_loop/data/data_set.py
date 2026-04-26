@@ -1,4 +1,5 @@
 """DataSet class and factory functions."""
+
 from __future__ import annotations
 
 import logging
@@ -28,8 +29,9 @@ from .location import FormatLocation
 log = logging.getLogger(__name__)
 
 
-def new_data(location=None, loc_record=None, name=None, overwrite=False,
-             io=None, **kwargs):
+def new_data(
+    location=None, loc_record=None, name=None, overwrite=False, io=None, **kwargs
+):
     """
     Create a new DataSet.
 
@@ -79,7 +81,7 @@ def new_data(location=None, loc_record=None, name=None, overwrite=False,
     if name is not None:
         if not loc_record:
             loc_record = {}
-        loc_record['name'] = name
+        loc_record["name"] = name
 
     if location is None:
         location = DataSet.location_provider
@@ -117,8 +119,10 @@ def load_data(location=None, formatter=None, io=None):
         A new ``DataSet`` object loaded with pre-existing data.
     """
     if location is False:
-        raise ValueError('location=False means a temporary DataSet, '
-                         'which is incompatible with load_data')
+        raise ValueError(
+            "location=False means a temporary DataSet, "
+            "which is incompatible with load_data"
+        )
 
     data = DataSet(location=location, formatter=formatter, io=io)
     data.read_metadata()
@@ -127,7 +131,6 @@ def load_data(location=None, formatter=None, io=None):
 
 
 class DataSet(DelegateAttributes):
-
     """
     A container for one complete measurement loop.
 
@@ -163,9 +166,9 @@ class DataSet(DelegateAttributes):
     """
 
     # ie data_set.arrays['vsd'] === data_set.vsd
-    delegate_attr_dicts = ['arrays']
+    delegate_attr_dicts = ["arrays"]
 
-    default_io = DiskIO('.')
+    default_io = DiskIO(".")
     default_formatter = GNUPlotFormat()
     location_provider = FormatLocation()
 
@@ -183,12 +186,13 @@ class DataSet(DelegateAttributes):
     DataSet you can override this with an instance attribute.
     """
 
-    def __init__(self, location=None, arrays=None, formatter=None, io=None,
-                 write_period=5):
+    def __init__(
+        self, location=None, arrays=None, formatter=None, io=None, write_period=5
+    ):
         if location is False or isinstance(location, str):
             self.location = location
         else:
-            raise ValueError('unrecognized location ' + repr(location))
+            raise ValueError("unrecognized location " + repr(location))
 
         # TODO: when you change formatter or io (and there's data present)
         # make it all look unsaved
@@ -261,8 +265,7 @@ class DataSet(DelegateAttributes):
         Args:
             delay (float): seconds between iterations. Default 1.5
         """
-        log.info(
-            f'waiting for DataSet <{self.location}> to complete')
+        log.info(f"waiting for DataSet <{self.location}> to complete")
 
         failing = {key: False for key in self.background_functions}
 
@@ -297,7 +300,7 @@ class DataSet(DelegateAttributes):
             # but only sleep if we're not already finished
             time.sleep(delay)
 
-        log.info(f'DataSet <{self.location}> is complete')
+        log.info(f"DataSet <{self.location}> is complete")
 
     def get_changes(self, synced_indices):
         """
@@ -343,7 +346,7 @@ class DataSet(DelegateAttributes):
 
         if data_array.array_id in self.arrays:
             raise ValueError(
-                f"array_id {data_array.array_id} already exists in this " "DataSet"
+                f"array_id {data_array.array_id} already exists in this DataSet"
             )
         self.arrays[data_array.array_id] = data_array
 
@@ -351,7 +354,7 @@ class DataSet(DelegateAttributes):
         data_array.data_set = self
 
     def remove_array(self, array_id):
-        """ Remove an array from a dataset
+        """Remove an array from a dataset
 
         Throws an exception when the array specified is refereced by other
         arrays in the dataset.
@@ -376,14 +379,13 @@ class DataSet(DelegateAttributes):
         action_indices = [array.action_indices for array in arrays]
         for array in arrays:
             name = array.full_name
-            if array.is_setpoint and name and not name.endswith('_set'):
-                name += '_set'
+            if array.is_setpoint and name and not name.endswith("_set"):
+                name += "_set"
 
             array.array_id = name
         array_ids = {array.array_id for array in arrays}
         for name in array_ids:
-            param_arrays = [array for array in arrays
-                            if array.array_id == name]
+            param_arrays = [array for array in arrays if array.array_id == name]
             self._clean_param_ids(param_arrays, name)
 
         array_ids = [array.array_id for array in arrays]
@@ -401,7 +403,7 @@ class DataSet(DelegateAttributes):
             else:
                 break
         for array, ai in zip(arrays, param_action_indices):
-            array.array_id = name + ''.join('_' + str(i) for i in ai)
+            array.array_id = name + "".join("_" + str(i) for i in ai)
 
     def store(self, loop_indices, ids_values):
         """
@@ -415,13 +417,15 @@ class DataSet(DelegateAttributes):
             values (Dict[Union[float, Sequence]]): a dict whose keys are
                 array_ids, and values are single numbers or entire slices
                 to insert into that array.
-         """
+        """
         for array_id, value in ids_values.items():
             self.arrays[array_id][loop_indices] = value
         self.last_store = time.time()
-        if (self.write_period is not None and
-                time.time() > self.last_write + self.write_period):
-            log.debug('Attempting to write')
+        if (
+            self.write_period is not None
+            and time.time() > self.last_write + self.write_period
+        ):
+            log.debug("Attempting to write")
             self.write()
             self.last_write = time.time()
         # The below could be useful but as it writes at every single
@@ -445,8 +449,8 @@ class DataSet(DelegateAttributes):
         arraynames = self.arrays.keys()
 
         # overrule parameter name from the metadata
-        if self.metadata.get('default_parameter_name', False):
-            paramname = self.metadata['default_parameter_name']
+        if self.metadata.get("default_parameter_name", False):
+            paramname = self.metadata["default_parameter_name"]
 
         # try to return the exact name
         if paramname in arraynames:
@@ -463,7 +467,7 @@ class DataSet(DelegateAttributes):
 
         # try to get the first non-setpoint array
         vv = [v for v in arraynames if not self.arrays[v].is_setpoint]
-        if (len(vv) > 0):
+        if len(vv) > 0:
             return sorted(vv)[0]
 
         # fallback: any array found
@@ -474,8 +478,8 @@ class DataSet(DelegateAttributes):
             pass
         return None
 
-    def default_parameter_array(self, paramname='amplitude'):
-        """ Return default parameter array
+    def default_parameter_array(self, paramname="amplitude"):
+        """Return default parameter array
 
         Args:
             paramname (str): Name to match to parameter name.
@@ -522,18 +526,22 @@ class DataSet(DelegateAttributes):
 
         # Only the gnuplot formatter has a "filename" kwarg
         if isinstance(self.formatter, GNUPlotFormat):
-            self.formatter.write(self,
-                                 self.io,
-                                 self.location,
-                                 write_metadata=write_metadata,
-                                 only_complete=only_complete,
-                                 filename=filename)
+            self.formatter.write(
+                self,
+                self.io,
+                self.location,
+                write_metadata=write_metadata,
+                only_complete=only_complete,
+                filename=filename,
+            )
         else:
-            self.formatter.write(self,
-                                 self.io,
-                                 self.location,
-                                 write_metadata=write_metadata,
-                                 only_complete=only_complete)
+            self.formatter.write(
+                self,
+                self.io,
+                self.location,
+                write_metadata=write_metadata,
+                only_complete=only_complete,
+            )
 
     def write_copy(self, path=None, io_manager=None, location=None):
         """
@@ -552,8 +560,10 @@ class DataSet(DelegateAttributes):
         """
         if io_manager is not None or location is not None:
             if path is not None:
-                raise TypeError('If you provide io_manager or location '
-                                'to write_copy, you may not provide path.')
+                raise TypeError(
+                    "If you provide io_manager or location "
+                    "to write_copy, you may not provide path."
+                )
             if io_manager is None:
                 io_manager = self.io
             elif location is None:
@@ -562,11 +572,10 @@ class DataSet(DelegateAttributes):
             io_manager = DiskIO(None)
             location = path
         else:
-            raise TypeError('You must provide at least one argument '
-                            'to write_copy')
+            raise TypeError("You must provide at least one argument to write_copy")
 
         if location is False:
-            raise ValueError('write_copy needs a location, not False')
+            raise ValueError("write_copy needs a location, not False")
 
         lsi_cache = {}
         mr_cache = {}
@@ -584,8 +593,7 @@ class DataSet(DelegateAttributes):
         try:
             self.formatter.write(self, io_manager, location, force_write=True)
             self.snapshot()
-            self.formatter.write_metadata(self, io_manager, location,
-                                          read_first=False)
+            self.formatter.write_metadata(self, io_manager, location, read_first=False)
         finally:
             for array_id, array in self.arrays.items():
                 array.last_saved_index = lsi_cache[array_id]
@@ -620,11 +628,11 @@ class DataSet(DelegateAttributes):
             write_metadata (bool): Whether to save a snapshot. For e.g. dumping
                 raw data inside a loop, a snapshot is not wanted.
         """
-        log.debug('Finalising the DataSet. Writing.')
+        log.debug("Finalising the DataSet. Writing.")
         # write all new data, not only (to?) complete columns
         self.write(only_complete=False, filename=filename)
 
-        if hasattr(self.formatter, 'close_file'):
+        if hasattr(self.formatter, "close_file"):
             self.formatter.close_file(self)
 
         if write_metadata:
@@ -636,13 +644,15 @@ class DataSet(DelegateAttributes):
         for array_id, array in self.arrays.items():
             array_snaps[array_id] = array.snapshot(update=update)
 
-        self.metadata.update({
-            '__class__': full_class(self),
-            'location': self.location,
-            'arrays': array_snaps,
-            'formatter': full_class(self.formatter),
-            'io': repr(self.io)
-        })
+        self.metadata.update(
+            {
+                "__class__": full_class(self),
+                "location": self.location,
+                "arrays": array_snaps,
+                "formatter": full_class(self.formatter),
+                "io": repr(self.io),
+            }
+        )
         return deepcopy(self.metadata)
 
     def get_array_metadata(self, array_id):
@@ -656,39 +666,41 @@ class DataSet(DelegateAttributes):
             dict: metadata for this array.
         """
         try:
-            return self.metadata['arrays'][array_id]
+            return self.metadata["arrays"][array_id]
         except (AttributeError, KeyError):
             return None
 
     def __repr__(self):
         """Rich information about the DataSet and contained arrays."""
-        out = type(self).__name__ + ':'
+        out = type(self).__name__ + ":"
 
-        attrs = [['location', repr(self.location)]]
-        attr_template = '\n   {:8} = {}'
+        attrs = [["location", repr(self.location)]]
+        attr_template = "\n   {:8} = {}"
         for var, val in attrs:
             out += attr_template.format(var, val)
 
-        arr_info = [['<Type>', '<array_id>', '<array.name>', '<array.shape>']]
+        arr_info = [["<Type>", "<array_id>", "<array.name>", "<array.shape>"]]
 
-        if hasattr(self, 'action_id_map'):
-            id_items = [
-                item for index, item in sorted(self.action_id_map.items())]
+        if hasattr(self, "action_id_map"):
+            id_items = [item for index, item in sorted(self.action_id_map.items())]
         else:
             id_items = self.arrays.keys()
 
         for array_id in id_items:
             array = self.arrays[array_id]
-            setp = 'Setpoint' if array.is_setpoint else 'Measured'
-            name = array.name or 'None'
-            array_id = array_id or 'None'
+            setp = "Setpoint" if array.is_setpoint else "Measured"
+            name = array.name or "None"
+            array_id = array_id or "None"
             arr_info.append([setp, array_id, name, repr(array.shape)])
 
-        column_lengths = [max(len(row[i]) for row in arr_info)
-                          for i in range(len(arr_info[0]))]
-        out_template = ('\n   '
-                        '{info[0]:{lens[0]}} | {info[1]:{lens[1]}} | '
-                        '{info[2]:{lens[2]}} | {info[3]}')
+        column_lengths = [
+            max(len(row[i]) for row in arr_info) for i in range(len(arr_info[0]))
+        ]
+        out_template = (
+            "\n   "
+            "{info[0]:{lens[0]}} | {info[1]:{lens[1]}} | "
+            "{info[2]:{lens[2]}} | {info[3]}"
+        )
 
         for arr_info_i in arr_info:
             out += out_template.format(info=arr_info_i, lens=column_lengths)
@@ -696,12 +708,12 @@ class DataSet(DelegateAttributes):
         return out
 
     def to_xarray(self) -> xr.Dataset:
-        """ Convert the dataset to an xarray Dataset """
+        """Convert the dataset to an xarray Dataset"""
         return qcodes_dataset_to_xarray_dataset(self)
 
     @classmethod
     def from_xarray(cls, xarray_dataset: xr.Dataset) -> DataSet:
-        """ Convert the dataset to an xarray DataSet """
+        """Convert the dataset to an xarray DataSet"""
         return xarray_dataset_to_qcodes_dataset(xarray_dataset)
 
 
@@ -718,8 +730,8 @@ class _PrettyPrintDict(dict[Any, Any]):
         return "{\n  " + body + "\n}"
 
     def _indent(self, s):
-        lines = s.split('\n')
-        return '\n    '.join(lines)
+        lines = s.split("\n")
+        return "\n    ".join(lines)
 
 
 def dataset_to_xarray_dictionary(
@@ -768,7 +780,7 @@ def dataset_to_xarray_dictionary(
 def qcodes_dataset_to_xarray_dataset(
     data_set: DataSet,
 ) -> xr.Dataset:
-    """ Convert QCoDeS gridded dataset to xarray dataset """
+    """Convert QCoDeS gridded dataset to xarray dataset"""
     import xarray as xr
 
     xarray_dictionary = dataset_to_xarray_dictionary(data_set)
@@ -825,7 +837,7 @@ def xarray_dictionary_to_dataset(
 
 
 def xarray_dataset_to_qcodes_dataset(xarray_data_set: xr.Dataset) -> DataSet:
-    """ Convert QCoDeS gridded dataset to xarray dataset """
+    """Convert QCoDeS gridded dataset to xarray dataset"""
     xarray_dictionary = xarray_data_set.to_dict()
     qcodes_dataset = xarray_dictionary_to_dataset(xarray_dictionary)
 

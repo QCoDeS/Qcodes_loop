@@ -39,6 +39,7 @@ Supported commands to .each are:
     - Task: any callable that does not generate data
     - Wait: a delay
 """
+
 import logging
 import time
 from collections.abc import Sequence
@@ -123,8 +124,8 @@ class Loop(Metadatable):
     yield data), ``Wait`` times, or another ``ActiveLoop`` or ``Loop`` to nest
     inside this one.
     """
-    def __init__(self, sweep_values, delay=0, station=None,
-                 progress_interval=None):
+
+    def __init__(self, sweep_values, delay=0, station=None, progress_interval=None):
         super().__init__()
         if delay < 0:
             raise ValueError(f"delay must be > 0, not {repr(delay)}")
@@ -179,8 +180,9 @@ class Loop(Metadatable):
         return out
 
     def _copy(self):
-        out = Loop(self.sweep_values, self.delay,
-                   progress_interval=self.progress_interval)
+        out = Loop(
+            self.sweep_values, self.delay, progress_interval=self.progress_interval
+        )
         out.nested_loop = self.nested_loop
         out.then_actions = self.then_actions
         out.station = self.station
@@ -210,10 +212,17 @@ class Loop(Metadatable):
             # recurse into the innermost loop and apply these actions there
             actions = [self.nested_loop.each(*actions)]
 
-        return ActiveLoop(self.sweep_values, self.delay, *actions,
-                          then_actions=self.then_actions, station=self.station,
-                          progress_interval=self.progress_interval,
-                          bg_task=self.bg_task, bg_final_task=self.bg_final_task, bg_min_delay=self.bg_min_delay)
+        return ActiveLoop(
+            self.sweep_values,
+            self.delay,
+            *actions,
+            then_actions=self.then_actions,
+            station=self.station,
+            progress_interval=self.progress_interval,
+            bg_task=self.bg_task,
+            bg_final_task=self.bg_final_task,
+            bg_min_delay=self.bg_min_delay,
+        )
 
     def with_bg_task(self, task, bg_final_task=None, min_delay=0.01):
         """
@@ -246,16 +255,19 @@ class Loop(Metadatable):
         for action in actions:
             if isinstance(action, (Task, Wait, BreakIf, ActiveLoop)):
                 continue
-            if hasattr(action, 'get') and (hasattr(action, 'name') or
-                                           hasattr(action, 'names')):
+            if hasattr(action, "get") and (
+                hasattr(action, "name") or hasattr(action, "names")
+            ):
                 continue
-            raise TypeError('Unrecognized action:', action,
-                            'Allowed actions are: objects (parameters) with '
-                            'a `get` method and `name` or `names` attribute, '
-                            'and `Task`, `Wait`, `BreakIf`, and `ActiveLoop` '
-                            'objects. `Loop` objects are OK too, except in '
-                            'Station default measurements.')
-
+            raise TypeError(
+                "Unrecognized action:",
+                action,
+                "Allowed actions are: objects (parameters) with "
+                "a `get` method and `name` or `names` attribute, "
+                "and `Task`, `Wait`, `BreakIf`, and `ActiveLoop` "
+                "objects. `Loop` objects are OK too, except in "
+                "Station default measurements.",
+            )
 
     def then(self, *actions, overwrite=False):
         """
@@ -306,10 +318,10 @@ class Loop(Metadatable):
             dict: base snapshot
         """
         return {
-            '__class__': full_class(self),
-            'sweep_values': self.sweep_values.snapshot(update=update),
-            'delay': self.delay,
-            'then_actions': _actions_snapshot(self.then_actions, update)
+            "__class__": full_class(self),
+            "sweep_values": self.sweep_values.snapshot(update=update),
+            "delay": self.delay,
+            "then_actions": _actions_snapshot(self.then_actions, update),
         }
 
 
@@ -317,9 +329,11 @@ def _attach_then_actions(loop, actions, overwrite):
     """Inner code for both Loop.then and ActiveLoop.then."""
     for action in actions:
         if not isinstance(action, (Task, Wait)):
-            raise TypeError('Unrecognized action:', action,
-                            '.then() allows only `Task` and `Wait` '
-                            'actions.')
+            raise TypeError(
+                "Unrecognized action:",
+                action,
+                ".then() allows only `Task` and `Wait` actions.",
+            )
 
     if overwrite:
         loop.then_actions = actions
@@ -335,7 +349,7 @@ def _attach_bg_task(loop, task, bg_final_task, min_delay):
         loop.bg_task = task
         loop.bg_min_delay = min_delay
     else:
-        raise RuntimeError('Only one background task is allowed per loop')
+        raise RuntimeError("Only one background task is allowed per loop")
 
     if bg_final_task:
         loop.bg_final_task = bg_final_task
@@ -358,9 +372,18 @@ class ActiveLoop(Metadatable):
     # is reset to None when active measurement is finished
     active_loop = None
 
-    def __init__(self, sweep_values, delay, *actions, then_actions=(),
-                 station=None, progress_interval=None, bg_task=None,
-                 bg_final_task=None, bg_min_delay=None):
+    def __init__(
+        self,
+        sweep_values,
+        delay,
+        *actions,
+        then_actions=(),
+        station=None,
+        progress_interval=None,
+        bg_task=None,
+        bg_final_task=None,
+        bg_min_delay=None,
+    ):
         super().__init__()
         self.sweep_values = sweep_values
         self.delay = delay
@@ -376,7 +399,7 @@ class ActiveLoop(Metadatable):
         # if the first action is another loop, it changes how delays
         # happen - the outer delay happens *after* the inner var gets
         # set to its initial value
-        self._nest_first = hasattr(actions[0], 'containers')
+        self._nest_first = hasattr(actions[0], "containers")
 
     def __getitem__(self, item):
         """
@@ -407,8 +430,13 @@ class ActiveLoop(Metadatable):
                 calls in an ActiveLoop after .then() has already been called on
                 the Loop) will add to each other or overwrite the earlier ones.
         """
-        loop = ActiveLoop(self.sweep_values, self.delay, *self.actions,
-                          then_actions=self.then_actions, station=self.station)
+        loop = ActiveLoop(
+            self.sweep_values,
+            self.delay,
+            *self.actions,
+            then_actions=self.then_actions,
+            station=self.station,
+        )
         return _attach_then_actions(loop, actions, overwrite)
 
     def with_bg_task(self, task, bg_final_task=None, min_delay=0.01):
@@ -435,11 +463,11 @@ class ActiveLoop(Metadatable):
     ):
         """Snapshot of this ActiveLoop's definition."""
         return {
-            '__class__': full_class(self),
-            'sweep_values': self.sweep_values.snapshot(update=update),
-            'delay': self.delay,
-            'actions': _actions_snapshot(self.actions, update),
-            'then_actions': _actions_snapshot(self.then_actions, update)
+            "__class__": full_class(self),
+            "sweep_values": self.sweep_values.snapshot(update=update),
+            "delay": self.delay,
+            "actions": _actions_snapshot(self.actions, update),
+            "then_actions": _actions_snapshot(self.then_actions, update),
         }
 
     def containers(self):
@@ -451,22 +479,21 @@ class ActiveLoop(Metadatable):
         """
         loop_size = len(self.sweep_values)
         data_arrays = []
-        loop_array = DataArray(parameter=self.sweep_values.parameter,
-                               is_setpoint=True)
+        loop_array = DataArray(parameter=self.sweep_values.parameter, is_setpoint=True)
         loop_array.nest(size=loop_size)
 
         data_arrays = [loop_array]
         # hack set_data into actions
         new_actions = self.actions[:]
-        if hasattr(self.sweep_values, "parameters"): # combined parameter
+        if hasattr(self.sweep_values, "parameters"):  # combined parameter
             for parameter in self.sweep_values.parameters:
                 new_actions.append(parameter)
 
         for i, action in enumerate(new_actions):
-            if hasattr(action, 'containers'):
+            if hasattr(action, "containers"):
                 action_arrays = action.containers()
 
-            elif hasattr(action, 'get'):
+            elif hasattr(action, "get"):
                 # this action is a parameter to measure
                 # note that this supports lists (separate output arrays)
                 # and arrays (nested in one/each output array) of return values
@@ -479,8 +506,7 @@ class ActiveLoop(Metadatable):
                 continue  # pragma: no cover
 
             for array in action_arrays:
-                array.nest(size=loop_size, action_index=i,
-                           set_array=loop_array)
+                array.nest(size=loop_size, action_index=i, set_array=loop_array)
             data_arrays.extend(action_arrays)
 
         return data_arrays
@@ -489,35 +515,35 @@ class ActiveLoop(Metadatable):
         out = []
 
         # first massage all the input parameters to the general multi-name form
-        if hasattr(action, 'names'):
+        if hasattr(action, "names"):
             names = action.names
             full_names = action.full_names
-            labels = getattr(action, 'labels', names)
+            labels = getattr(action, "labels", names)
             if len(labels) != len(names):
-                raise ValueError('must have equal number of names and labels')
+                raise ValueError("must have equal number of names and labels")
             action_indices = tuple((i,) for i in range(len(names)))
-        elif hasattr(action, 'name'):
+        elif hasattr(action, "name"):
             names = (action.name,)
             full_names = (action.full_name,)
-            labels = (getattr(action, 'label', action.name),)
+            labels = (getattr(action, "label", action.name),)
             action_indices = ((),)
         else:
-            raise ValueError('a gettable parameter must have .name or .names')
-        if hasattr(action, 'names') and hasattr(action, 'units'):
+            raise ValueError("a gettable parameter must have .name or .names")
+        if hasattr(action, "names") and hasattr(action, "units"):
             units = action.units
-        elif hasattr(action, 'unit'):
+        elif hasattr(action, "unit"):
             units = (action.unit,)
         else:
-            units = tuple(['']*len(names))
+            units = tuple([""] * len(names))
         num_arrays = len(names)
-        shapes = getattr(action, 'shapes', None)
-        sp_vals = getattr(action, 'setpoints', None)
-        sp_names = getattr(action, 'setpoint_names', None)
-        sp_labels = getattr(action, 'setpoint_labels', None)
-        sp_units = getattr(action, 'setpoint_units', None)
+        shapes = getattr(action, "shapes", None)
+        sp_vals = getattr(action, "setpoints", None)
+        sp_names = getattr(action, "setpoint_names", None)
+        sp_labels = getattr(action, "setpoint_labels", None)
+        sp_units = getattr(action, "setpoint_units", None)
 
         if shapes is None:
-            shapes = (getattr(action, 'shape', ()),) * num_arrays
+            shapes = (getattr(action, "shape", ()),) * num_arrays
             sp_vals = (sp_vals,) * num_arrays
             sp_names = (sp_names,) * num_arrays
             sp_labels = (sp_labels,) * num_arrays
@@ -536,11 +562,19 @@ class ActiveLoop(Metadatable):
         # record which setpoint arrays we've made, so we don't duplicate
         all_setpoints = {}
         for name, full_name, label, unit, shape, i, sp_vi, sp_ni, sp_li, sp_ui in zip(
-                names, full_names, labels, units, shapes, action_indices,
-                sp_vals, sp_names, sp_labels, sp_units):
-
+            names,
+            full_names,
+            labels,
+            units,
+            shapes,
+            action_indices,
+            sp_vals,
+            sp_names,
+            sp_labels,
+            sp_units,
+        ):
             if shape is None or shape == ():
-                shape, sp_vi, sp_ni, sp_li, sp_ui= (), (), (), (), ()
+                shape, sp_vi, sp_ni, sp_li, sp_ui = (), (), (), (), ()
             else:
                 sp_blank = (None,) * len(shape)
                 sp_vi = self._fill_blank(sp_vi, sp_blank)
@@ -558,9 +592,18 @@ class ActiveLoop(Metadatable):
                 setpoints = setpoints + (all_setpoints[sp_def],)
 
             # finally, make the output data array with these setpoints
-            out.append(DataArray(name=name, full_name=full_name, label=label,
-                                 shape=shape, action_indices=i, unit=unit,
-                                 set_arrays=setpoints, parameter=action))
+            out.append(
+                DataArray(
+                    name=name,
+                    full_name=full_name,
+                    label=label,
+                    shape=shape,
+                    action_indices=i,
+                    unit=unit,
+                    set_arrays=setpoints,
+                    parameter=action,
+                )
+            )
 
         return out
 
@@ -570,10 +613,9 @@ class ActiveLoop(Metadatable):
         elif len(inputs) == len(blanks):
             return inputs
         else:
-            raise ValueError('Wrong number of inputs supplied')
+            raise ValueError("Wrong number of inputs supplied")
 
-    def _make_setpoint_array(self, shape, i, prev_setpoints, vals, name,
-                             label, unit):
+    def _make_setpoint_array(self, shape, i, prev_setpoints, vals, name, label, unit):
         if vals is None:
             vals = self._default_setpoints(shape)
         elif isinstance(vals, DataArray):
@@ -594,14 +636,23 @@ class ActiveLoop(Metadatable):
             vals = np.array(vals)
 
         if vals.shape != shape:
-            raise ValueError('nth setpoint array should have shape matching '
-                             'the first n dimensions of shape.')
+            raise ValueError(
+                "nth setpoint array should have shape matching "
+                "the first n dimensions of shape."
+            )
 
         if name is None:
-            name = f'index{i}'
+            name = f"index{i}"
 
-        return DataArray(name=name, label=label, set_arrays=prev_setpoints,
-                         shape=shape, preset_data=vals, unit=unit, is_setpoint=True)
+        return DataArray(
+            name=name,
+            label=label,
+            set_arrays=prev_setpoints,
+            shape=shape,
+            preset_data=vals,
+            unit=unit,
+            is_setpoint=True,
+        )
 
     def _default_setpoints(self, shape):
         if len(shape) == 1:
@@ -624,7 +675,7 @@ class ActiveLoop(Metadatable):
         self.data_set = data_set
         self.use_threads = use_threads
         for action in self.actions:
-            if hasattr(action, 'set_common_attrs'):
+            if hasattr(action, "set_common_attrs"):
                 action.set_common_attrs(data_set, use_threads)
 
     def get_data_set(self, *args, **kwargs):
@@ -667,10 +718,11 @@ class ActiveLoop(Metadatable):
             has_args = len(kwargs) or len(args)
             if has_args:
                 raise RuntimeError(
-                    'The DataSet for this loop already exists. '
-                    'You can only provide DataSet attributes, such as '
-                    'data_manager, location, name, formatter, io, '
-                    'write_period, when the DataSet is first created.')
+                    "The DataSet for this loop already exists. "
+                    "You can only provide DataSet attributes, such as "
+                    "data_manager, location, name, formatter, io, "
+                    "write_period, when the DataSet is first created."
+                )
 
         return self.data_set
 
@@ -682,8 +734,16 @@ class ActiveLoop(Metadatable):
         """
         return self.run(quiet=True, location=False, **kwargs)
 
-    def run(self, use_threads=False, quiet=False, station=None,
-            progress_interval=False, set_active=True, *args, **kwargs):
+    def run(
+        self,
+        use_threads=False,
+        quiet=False,
+        station=None,
+        progress_interval=False,
+        set_active=True,
+        *args,
+        **kwargs,
+    ):
         """
         Execute this loop.
 
@@ -730,16 +790,20 @@ class ActiveLoop(Metadatable):
 
         station = station or self.station or Station.default
         if station:
-            data_set.add_metadata({'station': station.snapshot()})
+            data_set.add_metadata({"station": station.snapshot()})
 
         # information about the loop definition is in its snapshot
-        data_set.add_metadata({'loop': self.snapshot()})
+        data_set.add_metadata({"loop": self.snapshot()})
         # then add information about how and when it was run
-        ts = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        data_set.add_metadata({'loop': {
-            'ts_start': ts,
-            'use_threads': use_threads,
-        }})
+        ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        data_set.add_metadata(
+            {
+                "loop": {
+                    "ts_start": ts,
+                    "use_threads": use_threads,
+                }
+            }
+        )
 
         data_set.save_metadata()
 
@@ -748,13 +812,13 @@ class ActiveLoop(Metadatable):
 
         try:
             if not quiet:
-                print(datetime.now().strftime('Started at %Y-%m-%d %H:%M:%S'))
+                print(datetime.now().strftime("Started at %Y-%m-%d %H:%M:%S"))
             self._run_wrapper()
             ds = self.data_set
         finally:
             if not quiet:
                 print(repr(self.data_set))
-                print(datetime.now().strftime('Finished at %Y-%m-%d %H:%M:%S'))
+                print(datetime.now().strftime("Finished at %Y-%m-%d %H:%M:%S"))
 
             # After normal loop execution we clear the data_set so we can run
             # again. But also if something went wrong during the loop execution
@@ -771,19 +835,21 @@ class ActiveLoop(Metadatable):
         measurement_group = []
         for i, action in enumerate(actions):
             new_action_indices = action_indices + (i,)
-            if hasattr(action, 'get'):
+            if hasattr(action, "get"):
                 measurement_group.append((action, new_action_indices))
                 continue
             elif measurement_group:
-                callables.append(_Measure(measurement_group, self.data_set,
-                                          self.use_threads))
+                callables.append(
+                    _Measure(measurement_group, self.data_set, self.use_threads)
+                )
                 measurement_group[:] = []
 
             callables.append(self._compile_one(action, new_action_indices))
 
         if measurement_group:
-            callables.append(_Measure(measurement_group, self.data_set,
-                                      self.use_threads))
+            callables.append(
+                _Measure(measurement_group, self.data_set, self.use_threads)
+            )
             measurement_group[:] = []
 
         return callables
@@ -800,17 +866,22 @@ class ActiveLoop(Metadatable):
         try:
             self._run_loop(*args, **kwargs)
         finally:
-            if hasattr(self, 'data_set'):
+            if hasattr(self, "data_set"):
                 # TODO (giulioungaretti) WTF?
                 # somehow this does not show up in the data_set returned by
                 # run(), but it is saved to the metadata
-                ts = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                self.data_set.add_metadata({'loop': {'ts_end': ts}})
+                ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                self.data_set.add_metadata({"loop": {"ts_end": ts}})
                 self.data_set.finalize()
 
-    def _run_loop(self, first_delay=0, action_indices=(),
-                  loop_indices=(), current_values=(),
-                  **ignore_kwargs):
+    def _run_loop(
+        self,
+        first_delay=0,
+        action_indices=(),
+        loop_indices=(),
+        current_values=(),
+        **ignore_kwargs,
+    ):
         """
         the routine that actually executes the loop, and can be called
         from one loop to execute a nested loop
@@ -830,7 +901,7 @@ class ActiveLoop(Metadatable):
         callables = self._compile_actions(self.actions, action_indices)
         n_callables = 0
         for item in callables:
-            if hasattr(item, 'param_ids'):
+            if hasattr(item, "param_ids"):
                 n_callables += len(item.param_ids)
             else:
                 n_callables += 1
@@ -863,7 +934,7 @@ class ActiveLoop(Metadatable):
 
             if hasattr(self.sweep_values, "parameters"):  # combined parameter
                 set_name = self.data_set.action_id_map[action_indices]
-                if hasattr(self.sweep_values, 'aggregate'):
+                if hasattr(self.sweep_values, "aggregate"):
                     value = self.sweep_values.aggregate(*set_val)
                 # below is useful but too verbose even at debug
                 # log.debug('Calling .store method of DataSet because '
@@ -871,8 +942,8 @@ class ActiveLoop(Metadatable):
                 self.data_set.store(new_indices, {set_name: value})
                 # set_val list of values to set [param1_setpoint, param2_setpoint ..]
                 for j, val in enumerate(set_val):
-                    set_index = action_indices + (j+n_callables, )
-                    set_name = (self.data_set.action_id_map[set_index])
+                    set_index = action_indices + (j + n_callables,)
+                    set_name = self.data_set.action_id_map[set_index]
                     data_to_store[set_name] = val
             else:
                 set_name = self.data_set.action_id_map[action_indices]
@@ -891,9 +962,11 @@ class ActiveLoop(Metadatable):
                     # below is useful but too verbose even at debug
                     # log.debug('Going through callables at this sweep step.'
                     #           ' Calling {}'.format(f))
-                    f(first_delay=delay,
-                      loop_indices=new_indices,
-                      current_values=new_values)
+                    f(
+                        first_delay=delay,
+                        loop_indices=new_indices,
+                        current_values=new_values,
+                    )
 
                     # after the first action, no delay is inherited
                     delay = 0
@@ -924,18 +997,18 @@ class ActiveLoop(Metadatable):
 
         # run the background task one last time to catch the last setpoint(s)
         if self.bg_task is not None:
-            log.debug('Running the background task one last time.')
+            log.debug("Running the background task one last time.")
             self.bg_task()
 
         # the loop is finished - run the .then actions
-        #log.debug('Finishing loop, running the .then actions...')
+        # log.debug('Finishing loop, running the .then actions...')
         for f in self._compile_actions(self.then_actions, ()):
-            #log.debug('...running .then action {}'.format(f))
+            # log.debug('...running .then action {}'.format(f))
             f()
 
         # run the bg_final_task from the bg_task:
         if self.bg_final_task is not None:
-            log.debug('Running the bg_final_task')
+            log.debug("Running the bg_final_task")
             self.bg_final_task()
 
     def _wait(self, delay):

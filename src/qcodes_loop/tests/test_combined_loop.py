@@ -14,8 +14,7 @@ from qcodes_loop.loops import Loop
 class TestLoopCombined(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.dmm = DummyInstrument(name="dmm", gates=['voltage',
-                                                     'somethingelse'])
+        cls.dmm = DummyInstrument(name="dmm", gates=["voltage", "somethingelse"])
         cls.dmm.somethingelse.get = lambda: 1
 
     @classmethod
@@ -51,39 +50,44 @@ class TestLoopCombined(TestCase):
         ),
     )
     @settings(max_examples=10, deadline=300)
-    def testLoopCombinedParameterPrintTask(self, npoints, x_start_stop,
-                                           y_start_stop, z_start_stop):
+    def testLoopCombinedParameterPrintTask(
+        self, npoints, x_start_stop, y_start_stop, z_start_stop
+    ):
 
         x_set = np.linspace(x_start_stop[0], x_start_stop[1], npoints)
         y_set = np.linspace(y_start_stop[0], y_start_stop[1], npoints)
         z_set = np.linspace(z_start_stop[0], z_start_stop[1], npoints)
-        setpoints = np.hstack((x_set.reshape(npoints, 1),
-                               y_set.reshape(npoints, 1),
-                               z_set.reshape(npoints, 1)))
+        setpoints = np.hstack(
+            (
+                x_set.reshape(npoints, 1),
+                y_set.reshape(npoints, 1),
+                z_set.reshape(npoints, 1),
+            )
+        )
 
-        parameters = [Parameter(name, get_cmd=None, set_cmd=None)
-                      for name in ["X", "Y", "Z"]]
+        parameters = [
+            Parameter(name, get_cmd=None, set_cmd=None) for name in ["X", "Y", "Z"]
+        ]
 
-        sweep_values = combine(*parameters,
-                               name="combined").sweep(setpoints)
+        sweep_values = combine(*parameters, name="combined").sweep(setpoints)
 
         def ataskfunc():
-            a = 1+1
+            a = 1 + 1
 
         def btaskfunc():
-            b = 1+2
+            b = 1 + 2
 
         atask = Task(ataskfunc)
         btask = Task(btaskfunc)
 
-        loc_fmt = 'data/{date}/#{counter}_{name}_{date}_{time}'
-        rcd = {'name': 'printTask'}
+        loc_fmt = "data/{date}/#{counter}_{name}_{date}_{time}"
+        rcd = {"name": "printTask"}
         loc_provider = FormatLocation(fmt=loc_fmt, record=rcd)
         loop = Loop(sweep_values).each(atask, btask)
         data = loop.run(location=loc_provider, quiet=True)
-        np.testing.assert_array_equal(data.arrays['X'].ndarray, x_set)
-        np.testing.assert_array_equal(data.arrays['Y'].ndarray, y_set)
-        np.testing.assert_array_equal(data.arrays['Z'].ndarray, z_set)
+        np.testing.assert_array_equal(data.arrays["X"].ndarray, x_set)
+        np.testing.assert_array_equal(data.arrays["Y"].ndarray, y_set)
+        np.testing.assert_array_equal(data.arrays["Z"].ndarray, z_set)
 
     @given(
         npoints=hst.integers(2, 100),
@@ -113,18 +117,23 @@ class TestLoopCombined(TestCase):
         ),
     )
     @settings(max_examples=10, deadline=None)
-    def testLoopCombinedParameterTwice(self, npoints, x_start_stop,
-                                       y_start_stop, z_start_stop):
+    def testLoopCombinedParameterTwice(
+        self, npoints, x_start_stop, y_start_stop, z_start_stop
+    ):
         x_set = np.linspace(x_start_stop[0], x_start_stop[1], npoints)
         y_set = np.linspace(y_start_stop[0], y_start_stop[1], npoints)
         z_set = np.linspace(z_start_stop[0], z_start_stop[1], npoints)
-        setpoints = np.hstack((x_set.reshape(npoints, 1),
-                               y_set.reshape(npoints, 1),
-                               z_set.reshape(npoints, 1)))
-        parameters = [Parameter(name, get_cmd=None, set_cmd=None)
-                      for name in ["X", "Y", "Z"]]
-        sweep_values = combine(*parameters,
-                               name="combined").sweep(setpoints)
+        setpoints = np.hstack(
+            (
+                x_set.reshape(npoints, 1),
+                y_set.reshape(npoints, 1),
+                z_set.reshape(npoints, 1),
+            )
+        )
+        parameters = [
+            Parameter(name, get_cmd=None, set_cmd=None) for name in ["X", "Y", "Z"]
+        ]
+        sweep_values = combine(*parameters, name="combined").sweep(setpoints)
 
         def wrapper():
             counter = 0
@@ -137,18 +146,20 @@ class TestLoopCombined(TestCase):
             return inner
 
         self.dmm.voltage.get = wrapper()
-        loc_fmt = 'data/{date}/#{counter}_{name}_{date}_{time}'
-        rcd = {'name': 'parameterTwice'}
+        loc_fmt = "data/{date}/#{counter}_{name}_{date}_{time}"
+        rcd = {"name": "parameterTwice"}
         loc_provider = FormatLocation(fmt=loc_fmt, record=rcd)
         loop = Loop(sweep_values).each(self.dmm.voltage, self.dmm.voltage)
         data = loop.run(location=loc_provider, quiet=True)
-        np.testing.assert_array_equal(data.arrays['X'].ndarray, x_set)
-        np.testing.assert_array_equal(data.arrays['Y'].ndarray, y_set)
-        np.testing.assert_array_equal(data.arrays['Z'].ndarray, z_set)
-        np.testing.assert_array_equal(data.arrays['dmm_voltage_0'].ndarray,
-                                      np.arange(1, npoints*2, 2))
-        np.testing.assert_array_equal(data.arrays['dmm_voltage_1'].ndarray,
-                                      np.arange(2, npoints*2+1, 2))
+        np.testing.assert_array_equal(data.arrays["X"].ndarray, x_set)
+        np.testing.assert_array_equal(data.arrays["Y"].ndarray, y_set)
+        np.testing.assert_array_equal(data.arrays["Z"].ndarray, z_set)
+        np.testing.assert_array_equal(
+            data.arrays["dmm_voltage_0"].ndarray, np.arange(1, npoints * 2, 2)
+        )
+        np.testing.assert_array_equal(
+            data.arrays["dmm_voltage_1"].ndarray, np.arange(2, npoints * 2 + 1, 2)
+        )
 
     @given(
         npoints=hst.integers(2, 100),
@@ -178,18 +189,23 @@ class TestLoopCombined(TestCase):
         ),
     )
     @settings(max_examples=10, deadline=600)
-    def testLoopCombinedParameterAndMore(self, npoints, x_start_stop,
-                                         y_start_stop, z_start_stop):
+    def testLoopCombinedParameterAndMore(
+        self, npoints, x_start_stop, y_start_stop, z_start_stop
+    ):
         x_set = np.linspace(x_start_stop[0], x_start_stop[1], npoints)
         y_set = np.linspace(y_start_stop[0], y_start_stop[1], npoints)
         z_set = np.linspace(z_start_stop[0], z_start_stop[1], npoints)
-        setpoints = np.hstack((x_set.reshape(npoints, 1),
-                               y_set.reshape(npoints, 1),
-                               z_set.reshape(npoints, 1)))
-        parameters = [Parameter(name, get_cmd=None, set_cmd=None)
-                      for name in ["X", "Y", "Z"]]
-        sweep_values = combine(*parameters,
-                               name="combined").sweep(setpoints)
+        setpoints = np.hstack(
+            (
+                x_set.reshape(npoints, 1),
+                y_set.reshape(npoints, 1),
+                z_set.reshape(npoints, 1),
+            )
+        )
+        parameters = [
+            Parameter(name, get_cmd=None, set_cmd=None) for name in ["X", "Y", "Z"]
+        ]
+        sweep_values = combine(*parameters, name="combined").sweep(setpoints)
 
         def wrapper():
             counter = 0
@@ -202,21 +218,25 @@ class TestLoopCombined(TestCase):
             return inner
 
         self.dmm.voltage.get = wrapper()
-        loc_fmt = 'data/{date}/#{counter}_{name}_{date}_{time}'
-        rcd = {'name': 'parameterAndMore'}
+        loc_fmt = "data/{date}/#{counter}_{name}_{date}_{time}"
+        rcd = {"name": "parameterAndMore"}
         loc_provider = FormatLocation(fmt=loc_fmt, record=rcd)
-        loop = Loop(sweep_values).each(self.dmm.voltage,
-                                       self.dmm.somethingelse, self.dmm.voltage)
+        loop = Loop(sweep_values).each(
+            self.dmm.voltage, self.dmm.somethingelse, self.dmm.voltage
+        )
         data = loop.run(location=loc_provider, quiet=True)
-        np.testing.assert_array_equal(data.arrays['X'].ndarray, x_set)
-        np.testing.assert_array_equal(data.arrays['Y'].ndarray, y_set)
-        np.testing.assert_array_equal(data.arrays['Z'].ndarray, z_set)
-        np.testing.assert_array_equal(data.arrays['dmm_voltage_0'].ndarray,
-                                      np.arange(1, npoints * 2, 2))
-        np.testing.assert_array_equal(data.arrays['dmm_somethingelse'].ndarray,
-                                      np.ones(npoints))
-        np.testing.assert_array_equal(data.arrays['dmm_voltage_2'].ndarray,
-                                      np.arange(2, npoints * 2 + 1, 2))
+        np.testing.assert_array_equal(data.arrays["X"].ndarray, x_set)
+        np.testing.assert_array_equal(data.arrays["Y"].ndarray, y_set)
+        np.testing.assert_array_equal(data.arrays["Z"].ndarray, z_set)
+        np.testing.assert_array_equal(
+            data.arrays["dmm_voltage_0"].ndarray, np.arange(1, npoints * 2, 2)
+        )
+        np.testing.assert_array_equal(
+            data.arrays["dmm_somethingelse"].ndarray, np.ones(npoints)
+        )
+        np.testing.assert_array_equal(
+            data.arrays["dmm_voltage_2"].ndarray, np.arange(2, npoints * 2 + 1, 2)
+        )
 
     @given(
         npoints=hst.integers(2, 50),
@@ -247,26 +267,27 @@ class TestLoopCombined(TestCase):
         ),
     )
     @settings(max_examples=10, deadline=None)
-    def testLoopCombinedParameterInside(self, npoints, npoints_outer,
-                                        x_start_stop, y_start_stop,
-                                        z_start_stop):
+    def testLoopCombinedParameterInside(
+        self, npoints, npoints_outer, x_start_stop, y_start_stop, z_start_stop
+    ):
         x_set = np.linspace(x_start_stop[0], x_start_stop[1], npoints_outer)
         y_set = np.linspace(y_start_stop[0], y_start_stop[1], npoints)
         z_set = np.linspace(z_start_stop[0], z_start_stop[1], npoints)
 
-        setpoints = np.hstack((y_set.reshape(npoints, 1),
-                               z_set.reshape(npoints, 1)))
+        setpoints = np.hstack((y_set.reshape(npoints, 1), z_set.reshape(npoints, 1)))
 
-        parameters = [Parameter(name, get_cmd=None, set_cmd=None)
-                      for name in ["X", "Y", "Z"]]
-        sweep_values = combine(parameters[1], parameters[2],
-                               name="combined").sweep(setpoints)
+        parameters = [
+            Parameter(name, get_cmd=None, set_cmd=None) for name in ["X", "Y", "Z"]
+        ]
+        sweep_values = combine(parameters[1], parameters[2], name="combined").sweep(
+            setpoints
+        )
 
         def ataskfunc():
-            a = 1+1
+            a = 1 + 1
 
         def btaskfunc():
-            b = 1+2
+            b = 1 + 2
 
         atask = Task(ataskfunc)
         btask = Task(btaskfunc)
@@ -282,29 +303,41 @@ class TestLoopCombined(TestCase):
             return inner
 
         self.dmm.voltage.get = wrapper()
-        loc_fmt = 'data/{date}/#{counter}_{name}_{date}_{time}'
-        rcd = {'name': 'parameterInside'}
+        loc_fmt = "data/{date}/#{counter}_{name}_{date}_{time}"
+        rcd = {"name": "parameterInside"}
         loc_provider = FormatLocation(fmt=loc_fmt, record=rcd)
-        loop = Loop(parameters[0].sweep(x_start_stop[0], x_start_stop[1],
-                                        num=npoints_outer)).loop(sweep_values)\
-            .each(self.dmm.voltage, atask, self.dmm.somethingelse,
-                  self.dmm.voltage, btask)
+        loop = (
+            Loop(
+                parameters[0].sweep(x_start_stop[0], x_start_stop[1], num=npoints_outer)
+            )
+            .loop(sweep_values)
+            .each(
+                self.dmm.voltage, atask, self.dmm.somethingelse, self.dmm.voltage, btask
+            )
+        )
         data = loop.run(location=loc_provider, quiet=True)
-        np.testing.assert_array_equal(data.arrays['X_set'].ndarray, x_set)
-        np.testing.assert_array_equal(data.arrays['Y'].ndarray,
-                                      np.repeat(y_set.reshape(1, npoints),
-                                                npoints_outer, axis=0))
-        np.testing.assert_array_equal(data.arrays['Z'].ndarray,
-                                      np.repeat(z_set.reshape(1, npoints),
-                                                npoints_outer, axis=0))
+        np.testing.assert_array_equal(data.arrays["X_set"].ndarray, x_set)
+        np.testing.assert_array_equal(
+            data.arrays["Y"].ndarray,
+            np.repeat(y_set.reshape(1, npoints), npoints_outer, axis=0),
+        )
+        np.testing.assert_array_equal(
+            data.arrays["Z"].ndarray,
+            np.repeat(z_set.reshape(1, npoints), npoints_outer, axis=0),
+        )
 
-        np.testing.assert_array_equal(data.arrays['dmm_voltage_0'].ndarray,
-                                      np.arange(1, npoints * npoints_outer * 2,
-                                                2).reshape(npoints_outer,
-                                                           npoints))
-        np.testing.assert_array_equal(data.arrays['dmm_voltage_3'].ndarray,
-                                      np.arange(2, npoints * npoints_outer * 2
-                                                + 1, 2).reshape(npoints_outer,
-                                                                npoints))
-        np.testing.assert_array_equal(data.arrays['dmm_somethingelse'].ndarray,
-                                      np.ones((npoints_outer, npoints)))
+        np.testing.assert_array_equal(
+            data.arrays["dmm_voltage_0"].ndarray,
+            np.arange(1, npoints * npoints_outer * 2, 2).reshape(
+                npoints_outer, npoints
+            ),
+        )
+        np.testing.assert_array_equal(
+            data.arrays["dmm_voltage_3"].ndarray,
+            np.arange(2, npoints * npoints_outer * 2 + 1, 2).reshape(
+                npoints_outer, npoints
+            ),
+        )
+        np.testing.assert_array_equal(
+            data.arrays["dmm_somethingelse"].ndarray, np.ones((npoints_outer, npoints))
+        )

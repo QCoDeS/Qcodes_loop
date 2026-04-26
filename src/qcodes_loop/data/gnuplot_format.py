@@ -79,21 +79,27 @@ class GNUPlotFormat(Formatter):
     of corresponds to our situation.)
     """
 
-    def __init__(self, extension='dat', terminator='\n', separator='\t',
-                 comment='# ', number_format='.15g', metadata_file=None):
-        self.metadata_file = metadata_file or 'snapshot.json'
+    def __init__(
+        self,
+        extension="dat",
+        terminator="\n",
+        separator="\t",
+        comment="# ",
+        number_format=".15g",
+        metadata_file=None,
+    ):
+        self.metadata_file = metadata_file or "snapshot.json"
         # file extension: accept either with or without leading dot
-        self.extension = '.' + extension.lstrip('.')
+        self.extension = "." + extension.lstrip(".")
 
         # line terminator (only used for writing; will read any \r\n combo)
-        if terminator not in ('\r', '\n', '\r\n'):
-            raise ValueError(
-                r'GNUPlotFormat terminator must be \r, \n, or \r\n')
+        if terminator not in ("\r", "\n", "\r\n"):
+            raise ValueError(r"GNUPlotFormat terminator must be \r, \n, or \r\n")
         self.terminator = terminator
 
         # field separator (only used for writing; will read any whitespace)
-        if not re.fullmatch(r'\s+', separator):
-            raise ValueError('GNUPlotFormat separator must be whitespace')
+        if not re.fullmatch(r"\s+", separator):
+            raise ValueError("GNUPlotFormat separator must be whitespace")
         self.separator = separator
 
         # beginning of a comment line. (when reading, just checks the
@@ -101,11 +107,11 @@ class GNUPlotFormat(Formatter):
         self.comment = comment
         self.comment_chars = comment.rstrip()
         if not self.comment_chars:
-            raise ValueError('comment must have some non-whitespace')
+            raise ValueError("comment must have some non-whitespace")
         self.comment_len = len(self.comment_chars)
 
         # number format (only used for writing; will read any number)
-        self.number_format = '{:' + number_format + '}'
+        self.number_format = "{:" + number_format + "}"
 
     def read_one_file(self, data_set, f, ids_read):
         """
@@ -142,8 +148,7 @@ class GNUPlotFormat(Formatter):
             if array_id in arrays:
                 set_array = arrays[array_id]
                 if set_array.shape != set_shape:
-                    raise ValueError(
-                        'shapes do not match for set array: ' + array_id)
+                    raise ValueError("shapes do not match for set array: " + array_id)
                 if array_id not in ids_read:
                     # it's OK for setpoints to be duplicated across
                     # multiple files, but we should only empty the
@@ -151,13 +156,18 @@ class GNUPlotFormat(Formatter):
                     # reads can check for consistency
                     set_array.clear()
             else:
-                set_array = DataArray(label=labels[i], array_id=array_id,
-                                      set_arrays=set_arrays, shape=set_shape,
-                                      is_setpoint=True, snapshot=snap)
+                set_array = DataArray(
+                    label=labels[i],
+                    array_id=array_id,
+                    set_arrays=set_arrays,
+                    shape=set_shape,
+                    is_setpoint=True,
+                    snapshot=snap,
+                )
                 set_array.init_data()
                 data_set.add_array(set_array)
 
-            set_arrays = set_arrays + (set_array, )
+            set_arrays = set_arrays + (set_array,)
             ids_read.add(array_id)
 
         for i, array_id in indexed_ids[ndim:]:
@@ -165,15 +175,19 @@ class GNUPlotFormat(Formatter):
 
             # data arrays
             if array_id in ids_read:
-                raise ValueError('duplicate data id found: ' + array_id)
+                raise ValueError("duplicate data id found: " + array_id)
 
             if array_id in arrays:
                 data_array = arrays[array_id]
                 data_array.clear()
             else:
-                data_array = DataArray(label=labels[i], array_id=array_id,
-                                       set_arrays=set_arrays, shape=shape,
-                                       snapshot=snap)
+                data_array = DataArray(
+                    label=labels[i],
+                    array_id=array_id,
+                    set_arrays=set_arrays,
+                    shape=shape,
+                    snapshot=snap,
+                )
                 data_array.init_data()
                 data_set.add_array(data_array)
             data_arrays.append(data_array)
@@ -208,14 +222,19 @@ class GNUPlotFormat(Formatter):
 
             for value, set_array in zip(values[:ndim], set_arrays):
                 nparray = set_array.ndarray
-                myindices = tuple(indices[:nparray.ndim])
+                myindices = tuple(indices[: nparray.ndim])
                 stored_value = nparray[myindices]
                 if math.isnan(stored_value):
                     nparray[myindices] = value
                 elif stored_value != value:
-                    raise ValueError('inconsistent setpoint values',
-                                     stored_value, value, set_array.name,
-                                     myindices, indices)
+                    raise ValueError(
+                        "inconsistent setpoint values",
+                        stored_value,
+                        value,
+                        set_array.name,
+                        myindices,
+                        indices,
+                    )
 
             for value, data_array in zip(values[ndim:], data_arrays):
                 # set .ndarray directly to avoid the overhead of __setitem__
@@ -231,16 +250,16 @@ class GNUPlotFormat(Formatter):
         # because it also ensures modified_range is set correctly.
         indices[-1] -= 1
         for array in set_arrays + tuple(data_arrays):
-            array.mark_saved(array.flat_index(indices[:array.ndim]))
+            array.mark_saved(array.flat_index(indices[: array.ndim]))
 
     def _is_comment(self, line):
-        return line[:self.comment_len] == self.comment_chars
+        return line[: self.comment_len] == self.comment_chars
 
     def _read_comment_line(self, f):
         s = f.readline()
         if not self._is_comment(s):
-            raise ValueError('expected a comment line, found:\n' + s)
-        return s[self.comment_len:]
+            raise ValueError("expected a comment line, found:\n" + s)
+        return s[self.comment_len :]
 
     def _get_labels(self, labelstr):
         labelstr = labelstr.strip()
@@ -250,7 +269,7 @@ class GNUPlotFormat(Formatter):
         else:
             # fields *are* quoted (and escaped)
             parts = re.split('"\\s+"', labelstr[1:-1])
-            return [l.replace('\\"', '"').replace('\\\\', '\\') for l in parts]
+            return [l.replace('\\"', '"').replace("\\\\", "\\") for l in parts]
 
     # this signature is unfortunatly incompatible with the super class
     # so we have to ignore type errors
@@ -291,10 +310,10 @@ class GNUPlotFormat(Formatter):
 
         # Every group gets its own datafile
         for group in groups:
-            log.debug("Attempting to write the following " f"group: {group.name}")
+            log.debug(f"Attempting to write the following group: {group.name}")
             # it might be useful to output the whole group as below but it is
             # very verbose
-            #log.debug('containing {}'.format(group))
+            # log.debug('containing {}'.format(group))
 
             if filename:
                 fn = io_manager.join(location, filename + self.extension)
@@ -307,21 +326,22 @@ class GNUPlotFormat(Formatter):
             # used however, io_manager always returns relative paths so make sure both are
             # relative by calling to_location
             file_exists = io_manager.to_location(fn) in existing_files
-            save_range = self.match_save_range(group, file_exists,
-                                               only_complete=only_complete)
+            save_range = self.match_save_range(
+                group, file_exists, only_complete=only_complete
+            )
 
             if save_range is None:
-                log.debug('Cannot match save range, skipping this group.')
+                log.debug("Cannot match save range, skipping this group.")
                 continue
 
             overwrite = save_range[0] == 0 or force_write
-            open_mode = 'w' if overwrite else 'a'
+            open_mode = "w" if overwrite else "a"
             shape = group.set_arrays[-1].shape
 
             with io_manager.open(fn, open_mode) as f:
                 if overwrite:
                     f.write(self._make_header(group))
-                    log.debug('Wrote header to file')
+                    log.debug("Wrote header to file")
 
                 for i in range(save_range[0], save_range[1] + 1):
                     indices = np.unravel_index(i, shape)
@@ -337,7 +357,7 @@ class GNUPlotFormat(Formatter):
 
                     one_point = self._data_point(group, indices)
                     f.write(self.separator.join(one_point) + self.terminator)
-                log.debug("Wrote to file from " f"{save_range[0]} to {save_range[1]+1}")
+                log.debug(f"Wrote to file from {save_range[0]} to {save_range[1] + 1}")
             # now that we've saved the data, mark it as such in the data.
             # we mark the data arrays and the inner setpoint array. Outer
             # setpoint arrays have different dimension (so would need a
@@ -350,8 +370,7 @@ class GNUPlotFormat(Formatter):
                 array.mark_saved(save_range[1])
 
         if write_metadata:
-            self.write_metadata(
-                data_set, io_manager=io_manager, location=location)
+            self.write_metadata(data_set, io_manager=io_manager, location=location)
 
     def write_metadata(
         self,
@@ -359,7 +378,7 @@ class GNUPlotFormat(Formatter):
         io_manager,
         location,
         read_first=True,
-        **kwargs
+        **kwargs,
     ):
         """
         Write all metadata in this DataSet to storage.
@@ -387,16 +406,22 @@ class GNUPlotFormat(Formatter):
             deep_update(data_set.metadata, memory_metadata)
 
         fn = io_manager.join(location, self.metadata_file)
-        with io_manager.open(fn, 'w', encoding='utf8') as snap_file:
-            json.dump(data_set.metadata, snap_file, sort_keys=False,
-                      indent=4, ensure_ascii=False, cls=NumpyJSONEncoder)
+        with io_manager.open(fn, "w", encoding="utf8") as snap_file:
+            json.dump(
+                data_set.metadata,
+                snap_file,
+                sort_keys=False,
+                indent=4,
+                ensure_ascii=False,
+                cls=NumpyJSONEncoder,
+            )
 
     def read_metadata(self, data_set):
         io_manager = data_set.io
         location = data_set.location
         fn = io_manager.join(location, self.metadata_file)
         if io_manager.list(fn):
-            with io_manager.open(fn, 'r') as snap_file:
+            with io_manager.open(fn, "r") as snap_file:
                 metadata = json.load(snap_file)
             data_set.metadata.update(metadata)
 
@@ -404,16 +429,19 @@ class GNUPlotFormat(Formatter):
         ids, labels = [], []
         for array in group.set_arrays + group.data:
             ids.append(array.array_id)
-            label = getattr(array, 'label', array.array_id)
-            label = label.replace('\\', '\\\\').replace('"', '\\"')
+            label = getattr(array, "label", array.array_id)
+            label = label.replace("\\", "\\\\").replace('"', '\\"')
             labels.append('"' + label + '"')
 
         shape = [str(size) for size in group.set_arrays[-1].shape]
         if len(shape) != len(group.set_arrays):
-            raise ValueError('array dimensionality does not match setpoints')
+            raise ValueError("array dimensionality does not match setpoints")
 
-        out = (self._comment_line(ids) + self._comment_line(labels) +
-               self._comment_line(shape))
+        out = (
+            self._comment_line(ids)
+            + self._comment_line(labels)
+            + self._comment_line(shape)
+        )
 
         return out
 
@@ -422,7 +450,7 @@ class GNUPlotFormat(Formatter):
 
     def _data_point(self, group, indices):
         for array in group.set_arrays:
-            yield self.number_format.format(array[indices[:array.ndim]])
+            yield self.number_format.format(array[indices[: array.ndim]])
 
         for array in group.data:
             yield self.number_format.format(array[indices])

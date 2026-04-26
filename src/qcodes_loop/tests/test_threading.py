@@ -8,12 +8,9 @@ from qcodes_loop.loops import Loop
 
 
 class TestUnsafeThreading(TestCase):
-
     def setUp(self):
-        self.inst1 = DummyInstrument(name='inst1',
-                                     gates=['v1', 'v2'])
-        self.inst2 = DummyInstrument(name='inst2',
-                                     gates=['v1', 'v2'])
+        self.inst1 = DummyInstrument(name="inst1", gates=["v1", "v2"])
+        self.inst2 = DummyInstrument(name="inst2", gates=["v1", "v2"])
 
     def tearDown(self):
         self.inst1.close()

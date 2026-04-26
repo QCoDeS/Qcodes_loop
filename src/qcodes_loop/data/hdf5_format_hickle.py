@@ -10,15 +10,14 @@ if TYPE_CHECKING:
     import qcodes.data.data_set
 
 
-#%%
+# %%
 
 log = logging.getLogger(__name__)
 
 
 class HDF5FormatHickle(HDF5Format):
-
-    _metadata_file = 'snapshot.hickle'
-    _format_tag = 'hdf5-hickle'
+    _metadata_file = "snapshot.hickle"
+    _format_tag = "hdf5-hickle"
 
     def write_metadata(
         self,
@@ -26,7 +25,7 @@ class HDF5FormatHickle(HDF5Format):
         io_manager=None,
         location=None,
         read_first=False,
-        **kwargs
+        **kwargs,
     ):
         """
         Write all metadata in this DataSet to storage.
@@ -47,7 +46,7 @@ class HDF5FormatHickle(HDF5Format):
 
         # this statement is here to make the linter happy
         if io_manager is None or location is None:
-            raise Exception('please set io_manager and location arguments ')
+            raise Exception("please set io_manager and location arguments ")
 
         if read_first:
             # In case the saved file has more metadata than we have here,
@@ -60,7 +59,7 @@ class HDF5FormatHickle(HDF5Format):
 
         log.info(f"writing metadata to file {self._metadata_file}")
         fn = io_manager.join(location, self._metadata_file)
-        with io_manager.open(fn, 'w', encoding='utf8') as snap_file:
+        with io_manager.open(fn, "w", encoding="utf8") as snap_file:
             hickle.dump(data_set.metadata, snap_file)
 
     def read_metadata(self, data_set: "qcodes.data.data_set.DataSet"):
