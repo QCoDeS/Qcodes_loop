@@ -14,6 +14,7 @@ from qcodes.validators import Numbers
 from qcodes_loop.actions import BreakIf, Task, Wait, _QcodesBreak
 from qcodes_loop.data.data_array import DataArray
 from qcodes_loop.loops import Loop
+from qcodes_loop.sweep_values import Sweeper
 
 
 class NanReturningParameter(MultiParameter):
@@ -41,9 +42,9 @@ class TestLoop(TestCase):
 
     def test_nesting(self):
         loop = (
-            Loop(self.p1[1:3:1], 0.001)
-            .loop(self.p2[3:5:1], 0.001)
-            .loop(self.p3[5:7:1], 0.001)
+            Loop(Sweeper(self.p1)[1:3:1], 0.001)
+            .loop(Sweeper(self.p2)[3:5:1], 0.001)
+            .loop(Sweeper(self.p3)[5:7:1], 0.001)
         )
         active_loop = loop.each(self.p1, self.p2, self.p3)
         data = active_loop.run_temp()
@@ -57,10 +58,12 @@ class TestLoop(TestCase):
         self.assertEqual(data.p3.tolist(), [[[5, 6]] * 2] * 2)
 
     def test_nesting_2(self):
-        loop = Loop(self.p1[1:3:1]).each(
+        loop = Loop(Sweeper(self.p1)[1:3:1]).each(
             self.p1,
-            Loop(self.p2[3:5:1]).each(
-                self.p1, self.p2, Loop(self.p3[5:7:1]).each(self.p1, self.p2, self.p3)
+            Loop(Sweeper(self.p2)[3:5:1]).each(
+                self.p1,
+                self.p2,
+                Loop(Sweeper(self.p3)[5:7:1]).each(self.p1, self.p2, self.p3),
             ),
         )
 
@@ -90,8 +93,10 @@ class TestLoop(TestCase):
         self.assertEqual(keys, keys2)
 
     def test_repr(self):
-        loop2 = Loop(self.p2[3:5:1], 0.001).each(self.p2)
-        loop = Loop(self.p1[1:3:1], 0.001).each(self.p3, self.p2, loop2, self.p1)
+        loop2 = Loop(Sweeper(self.p2)[3:5:1], 0.001).each(self.p2)
+        loop = Loop(Sweeper(self.p1)[1:3:1], 0.001).each(
+            self.p3, self.p2, loop2, self.p1
+        )
         active_loop = loop
         data = active_loop.run_temp()
         expected = (
@@ -108,7 +113,9 @@ class TestLoop(TestCase):
         self.assertEqual(data.__repr__(), expected)
 
     def test_measurement_with_many_nans(self):
-        loop = Loop(self.p1.sweep(0, 1, num=10), delay=0.05).each(self.p4_crazy)
+        loop = Loop(Sweeper(self.p1).sweep(0, 1, num=10), delay=0.05).each(
+            self.p4_crazy
+        )
         ds = loop.get_data_set(name="test_measurement_with_many_nans")
         loop.run()
 
@@ -117,7 +124,7 @@ class TestLoop(TestCase):
 
     def test_tasks_callable_arguments(self):
         data = (
-            Loop(self.p1[1:3:1], 0.01)
+            Loop(Sweeper(self.p1)[1:3:1], 0.01)
             .each(
                 Task(self.p2.set, self.p1),
                 Task(self.p3.set, self.p1.get),
@@ -135,7 +142,7 @@ class TestLoop(TestCase):
             self.assertEqual(kwargs, {"a_kwarg": 4})
 
         data = (
-            Loop(self.p1[1:2:1], 0.01)
+            Loop(Sweeper(self.p1)[1:2:1], 0.01)
             .each(
                 Task(self.p2.set, lambda: self.p1.get() * 2),
                 Task(
@@ -156,7 +163,7 @@ class TestLoop(TestCase):
     def test_delay0(self, sleep_mock):
         self.p2.set(3)
 
-        loop = Loop(self.p1[1:3:1]).each(self.p2)
+        loop = Loop(Sweeper(self.p1)[1:3:1]).each(self.p2)
 
         self.assertEqual(loop.delay, 0)
 
@@ -174,7 +181,7 @@ class TestLoop(TestCase):
             ("forever", TypeError),
         ]:
             with self.assertRaises(err):
-                Loop(self.p1[1:3:1], val)
+                Loop(Sweeper(self.p1)[1:3:1], val)
 
             with self.assertRaises(err):
                 Wait(val)
@@ -186,7 +193,7 @@ class TestLoop(TestCase):
         self.assertTrue(hasattr(mg, "shapes"))
         self.assertEqual(mg.name, "multigetter")
         self.assertFalse(hasattr(mg, "shape"))
-        loop = Loop(self.p1[1:3:1], 0.001).each(mg)
+        loop = Loop(Sweeper(self.p1)[1:3:1], 0.001).each(mg)
         data = loop.run_temp()
 
         self.assertEqual(data.p1_set.tolist(), [1, 2])
@@ -243,7 +250,7 @@ class TestLoop(TestCase):
         self.assertFalse(hasattr(mg, "shape"))
         self.assertTrue(hasattr(mg, "names"))
         self.assertTrue(hasattr(mg, "shapes"))
-        loop = Loop(self.p1[1:3:1], 0.001).each(mg)
+        loop = Loop(Sweeper(self.p1)[1:3:1], 0.001).each(mg)
         data = loop.run_temp()
 
         self.assertEqual(data.p1_set.tolist(), [1, 2])
@@ -251,7 +258,7 @@ class TestLoop(TestCase):
         self.assertEqual(data.index0_set.tolist(), [[0, 1, 2]] * 2)
 
         mg = MultiGetter(arr2d=((21, 22), (23, 24)))
-        loop = Loop(self.p1[1:3:1], 0.001).each(mg)
+        loop = Loop(Sweeper(self.p1)[1:3:1], 0.001).each(mg)
         data = loop.run_temp()
 
         self.assertEqual(data.p1_set.tolist(), [1, 2])
@@ -280,34 +287,34 @@ class TestLoop(TestCase):
             names = "Namezz"
 
         # first two minimal working gettables
-        Loop(self.p1[1:3:1]).each(HasName())
-        Loop(self.p1[1:3:1]).each(HasNames())
+        Loop(Sweeper(self.p1)[1:3:1]).each(HasName())
+        Loop(Sweeper(self.p1)[1:3:1]).each(HasNames())
 
         for bad_action in (f, 42, NoName()):
             with self.assertRaises(TypeError):
                 # include a good action too, just to make sure we look
                 # at the whole list
-                Loop(self.p1[1:3:1]).each(self.p1, bad_action)
+                Loop(Sweeper(self.p1)[1:3:1]).each(self.p1, bad_action)
 
         with self.assertRaises(ValueError):
             # invalid sweep values
-            Loop(self.p1[-20:20:1]).each(self.p1)
+            Loop(Sweeper(self.p1)[-20:20:1]).each(self.p1)
 
     def test_very_short_delay(self):
         with LogCapture() as logs:
-            Loop(self.p1[1:3:1], 1e-9).each(self.p1).run_temp()
+            Loop(Sweeper(self.p1)[1:3:1], 1e-9).each(self.p1).run_temp()
 
         self.assertEqual(logs.value.count("negative delay"), 2, logs.value)
 
     def test_zero_delay(self):
         with LogCapture() as logs:
-            Loop(self.p1[1:3:1]).each(self.p1).run_temp()
+            Loop(Sweeper(self.p1)[1:3:1]).each(self.p1).run_temp()
 
         self.assertEqual(logs.value.count("negative delay"), 0, logs.value)
 
     def test_breakif(self):
         nan = float("nan")
-        loop = Loop(self.p1[1:6:1])
+        loop = Loop(Sweeper(self.p1)[1:6:1])
         data = loop.each(self.p1, BreakIf(lambda: self.p1.get() >= 3)).run_temp()
         self.assertEqual(repr(data.p1.tolist()), repr([1.0, 2.0, 3.0, nan, nan]))
 
@@ -322,7 +329,7 @@ class TestLoop(TestCase):
             BreakIf(self.p1.set)
 
     def test_then_construction(self):
-        loop = Loop(self.p1[1:6:1])
+        loop = Loop(Sweeper(self.p1)[1:6:1])
         task1 = Task(self.p1.set, 2)
         task2 = Wait(0.02)
         loop2 = loop.then(task1)
@@ -388,7 +395,7 @@ class TestLoop(TestCase):
         self.p3.set(3)
         p3snap = self.p3.snapshot()
         data = (
-            Loop(self.p1[1:6:1])
+            Loop(Sweeper(self.p1)[1:6:1])
             .each(self.p1, breaker)
             .then(Task(self.p1.set, 2), Wait(0.01), Task(f))
             .run_temp()
@@ -440,8 +447,8 @@ class TestLoop(TestCase):
         # now test a nested loop with .then inside and outside
         f_calls[:] = []
 
-        Loop(self.p1[1:3:1]).each(
-            Loop(self.p2[1:3:1]).each(self.p2).then(Task(g))
+        Loop(Sweeper(self.p1)[1:3:1]).each(
+            Loop(Sweeper(self.p2)[1:3:1]).each(self.p2).then(Task(g))
         ).then(Task(f)).run_temp()
 
         self.assertEqual(len(f_calls), 1)
@@ -450,15 +457,21 @@ class TestLoop(TestCase):
         # Loop.loop nesting always just makes the .then actions run after
         # the outer loop
         f_calls[:] = []
-        Loop(self.p1[1:3:1]).then(Task(f)).loop(self.p2[1:3:1]).each(self.p1).run_temp()
+        Loop(Sweeper(self.p1)[1:3:1]).then(Task(f)).loop(Sweeper(self.p2)[1:3:1]).each(
+            self.p1
+        ).run_temp()
         self.assertEqual(len(f_calls), 1)
 
         f_calls[:] = []
-        Loop(self.p1[1:3:1]).loop(self.p2[1:3:1]).then(Task(f)).each(self.p1).run_temp()
+        Loop(Sweeper(self.p1)[1:3:1]).loop(Sweeper(self.p2)[1:3:1]).then(Task(f)).each(
+            self.p1
+        ).run_temp()
         self.assertEqual(len(f_calls), 1)
 
         f_calls[:] = []
-        Loop(self.p1[1:3:1]).loop(self.p2[1:3:1]).each(self.p1).then(Task(f)).run_temp()
+        Loop(Sweeper(self.p1)[1:3:1]).loop(Sweeper(self.p2)[1:3:1]).each(self.p1).then(
+            Task(f)
+        ).run_temp()
         self.assertEqual(len(f_calls), 1)
 
 
@@ -492,7 +505,7 @@ class Test_halt(TestCase):
         p1 = AbortingGetter(
             "p1", count=abort_after, vals=Numbers(-10, 10), set_cmd=None
         )
-        loop = Loop(p1.sweep(0, abort_after, 1), 0.005).each(p1)
+        loop = Loop(Sweeper(p1).sweep(0, abort_after, 1), 0.005).each(p1)
         # we want to test what's in data, so get it ahead of time
         # because loop.run will not return.
         data = loop.get_data_set(location=False)
@@ -505,7 +518,7 @@ class Test_halt(TestCase):
 class TestMetaData(TestCase):
     def test_basic(self):
         p1 = AbortingGetter("p1", count=2, vals=Numbers(-10, 10), set_cmd=None)
-        sv = p1[1:3:1]
+        sv = Sweeper(p1)[1:3:1]
         loop = Loop(sv)
 
         # not sure why you'd do it, but you *can* snapshot a Loop

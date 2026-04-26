@@ -71,7 +71,7 @@ class QCoDeSMagic(Magics):
             ...
 
         An explicit example of the line ``for {sweep_vals}:`` could be
-        ``for sweep_parameter.sweep(0, 42, step=1):``
+        ``for Sweeper(sweep_parameter).sweep(0, 42, step=1):``
 
         """
 

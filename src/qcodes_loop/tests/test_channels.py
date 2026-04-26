@@ -16,6 +16,7 @@ from qcodes.validators import Numbers
 
 from qcodes_loop.data.location import FormatLocation
 from qcodes_loop.loops import Loop
+from qcodes_loop.sweep_values import Sweeper
 
 
 @pytest.fixture(scope="function", name="dci")
@@ -43,7 +44,7 @@ def test_loop_simple(dci):
     loc_fmt = "data/{date}/#{counter}_{name}_{date}_{time}"
     rcd = {"name": "loopSimple"}
     loc_provider = FormatLocation(fmt=loc_fmt, record=rcd)
-    loop = Loop(dci.channels[0].temperature.sweep(0, 300, 10), 0.001).each(
+    loop = Loop(Sweeper(dci.channels[0].temperature).sweep(0, 300, 10), 0.001).each(
         dci.A.temperature
     )
     data = loop.run(location=loc_provider)
@@ -57,7 +58,7 @@ def test_loop_measure_all_channels(dci):
     loc_fmt = "data/{date}/#{counter}_{name}_{date}_{time}"
     rcd = {"name": "allChannels"}
     loc_provider = FormatLocation(fmt=loc_fmt, record=rcd)
-    loop = Loop(p1.sweep(-10, 10, 1), 1e-6).each(dci.channels.temperature)
+    loop = Loop(Sweeper(p1).sweep(-10, 10, 1), 1e-6).each(dci.channels.temperature)
     data = loop.run(location=loc_provider)
     assert data.p1_set.ndarray.shape == (21,)
     assert len(data.arrays) == 7
@@ -70,7 +71,7 @@ def test_loop_measure_channels_individually(dci):
     loc_fmt = "data/{date}/#{counter}_{name}_{date}_{time}"
     rcd = {"name": "channelsIndividually"}
     loc_provider = FormatLocation(fmt=loc_fmt, record=rcd)
-    loop = Loop(p1.sweep(-10, 10, 1), 1e-6).each(
+    loop = Loop(Sweeper(p1).sweep(-10, 10, 1), 1e-6).each(
         dci.channels[0].temperature,
         dci.channels[1].temperature,
         dci.channels[2].temperature,
@@ -95,7 +96,7 @@ def test_loop_measure_channels_by_name(dci, values):
     loc_fmt = "data/{date}/#{counter}_{name}_{date}_{time}"
     rcd = {"name": "channelsByName"}
     loc_provider = FormatLocation(fmt=loc_fmt, record=rcd)
-    loop = Loop(p1.sweep(-10, 10, 1), 1e-6).each(
+    loop = Loop(Sweeper(p1).sweep(-10, 10, 1), 1e-6).each(
         dci.A.temperature, dci.B.temperature, dci.C.temperature, dci.D.temperature
     )
     data = loop.run(location=loc_provider)
@@ -120,8 +121,10 @@ def test_nested_loop_over_channels(dci, loop_channels, measure_channel):
     loc_fmt = "data/{date}/#{counter}_{name}_{date}_{time}"
     rcd = {"name": "nestedLoopOverChannels"}
     loc_provider = FormatLocation(fmt=loc_fmt, record=rcd)
-    loop = Loop(dci.channels[loop_channels[0]].temperature.sweep(0, 10, 0.5))
-    loop = loop.loop(dci.channels[loop_channels[1]].temperature.sweep(50, 51, 0.1))
+    loop = Loop(Sweeper(dci.channels[loop_channels[0]].temperature).sweep(0, 10, 0.5))
+    loop = loop.loop(
+        Sweeper(dci.channels[loop_channels[1]].temperature).sweep(50, 51, 0.1)
+    )
     loop = loop.each(dci.channels[measure_channel].temperature)
     data = loop.run(location=loc_provider)
 
@@ -154,7 +157,7 @@ def test_nested_loop_over_channels(dci, loop_channels, measure_channel):
 
 def test_loop_slicing_multiparameter_raises(dci):
     with pytest.raises(NotImplementedError):
-        loop = Loop(dci.A.temperature.sweep(0, 10, 1), 0.1)
+        loop = Loop(Sweeper(dci.A.temperature).sweep(0, 10, 1), 0.1)
         loop.each(dci.channels[0:2].dummy_multi_parameter).run()
 
 
@@ -162,7 +165,7 @@ def test_loop_multiparameter_by_name(dci):
     loc_fmt = "data/{date}/#{counter}_{name}_{date}_{time}"
     rcd = {"name": "multiParamByName"}
     loc_provider = FormatLocation(fmt=loc_fmt, record=rcd)
-    loop = Loop(dci.A.temperature.sweep(0, 10, 1), 0.1)
+    loop = Loop(Sweeper(dci.A.temperature).sweep(0, 10, 1), 0.1)
     data = loop.each(dci.A.dummy_multi_parameter).run(location=loc_provider)
     _verify_multiparam_data(data)
     assert "multi_setpoint_param_this_setpoint_set" in data.arrays.keys()
@@ -172,7 +175,7 @@ def test_loop_multiparameter_by_index(dci):
     loc_fmt = "data/{date}/#{counter}_{name}_{date}_{time}"
     rcd = {"name": "loopByIndex"}
     loc_provider = FormatLocation(fmt=loc_fmt, record=rcd)
-    loop = Loop(dci.channels[0].temperature.sweep(0, 10, 1), 0.1)
+    loop = Loop(Sweeper(dci.channels[0].temperature).sweep(0, 10, 1), 0.1)
     data = loop.each(dci.A.dummy_multi_parameter).run(location=loc_provider)
     _verify_multiparam_data(data)
 
@@ -181,7 +184,7 @@ def test_loop_slicing_arrayparameter(dci):
     loc_fmt = "data/{date}/#{counter}_{name}_{date}_{time}"
     rcd = {"name": "loopSlicing"}
     loc_provider = FormatLocation(fmt=loc_fmt, record=rcd)
-    loop = Loop(dci.A.temperature.sweep(0, 10, 1), 0.1)
+    loop = Loop(Sweeper(dci.A.temperature).sweep(0, 10, 1), 0.1)
     data = loop.each(dci.channels[0:2].dummy_array_parameter).run(location=loc_provider)
     _verify_array_data(data, channels=("A", "B"))
 
@@ -190,7 +193,7 @@ def test_loop_arrayparameter_by_name(dci):
     loc_fmt = "data/{date}/#{counter}_{name}_{date}_{time}"
     rcd = {"name": "arrayParamByName"}
     loc_provider = FormatLocation(fmt=loc_fmt, record=rcd)
-    loop = Loop(dci.A.temperature.sweep(0, 10, 1), 0.1)
+    loop = Loop(Sweeper(dci.A.temperature).sweep(0, 10, 1), 0.1)
     data = loop.each(dci.A.dummy_array_parameter).run(location=loc_provider)
     _verify_array_data(data)
 
@@ -199,7 +202,7 @@ def test_loop_arrayparameter_by_index(dci):
     loc_fmt = "data/{date}/#{counter}_{name}_{date}_{time}"
     rcd = {"name": "arrayParamByIndex"}
     loc_provider = FormatLocation(fmt=loc_fmt, record=rcd)
-    loop = Loop(dci.channels[0].temperature.sweep(0, 10, 1), 0.1)
+    loop = Loop(Sweeper(dci.channels[0].temperature).sweep(0, 10, 1), 0.1)
     data = loop.each(dci.A.dummy_array_parameter).run(location=loc_provider)
     _verify_array_data(data)
 

@@ -9,6 +9,7 @@ from qcodes.parameters import Parameter, combine
 from qcodes_loop.actions import Task
 from qcodes_loop.data.location import FormatLocation
 from qcodes_loop.loops import Loop
+from qcodes_loop.sweep_values import Sweeper
 
 
 class TestLoopCombined(TestCase):
@@ -308,7 +309,9 @@ class TestLoopCombined(TestCase):
         loc_provider = FormatLocation(fmt=loc_fmt, record=rcd)
         loop = (
             Loop(
-                parameters[0].sweep(x_start_stop[0], x_start_stop[1], num=npoints_outer)
+                Sweeper(parameters[0]).sweep(
+                    x_start_stop[0], x_start_stop[1], num=npoints_outer
+                )
             )
             .loop(sweep_values)
             .each(

@@ -8,6 +8,7 @@ from qcodes.utils import full_class
 
 from qcodes_loop.actions import _actions_snapshot
 from qcodes_loop.loops import Loop
+from qcodes_loop.sweep_values import Sweeper
 
 
 class Measure(Metadatable):
@@ -28,7 +29,7 @@ class Measure(Metadatable):
 
     def __init__(self, *actions):
         super().__init__()
-        self._dummyLoop = Loop(self.dummy_parameter[0]).each(*actions)
+        self._dummyLoop = Loop(Sweeper(self.dummy_parameter)[0]).each(*actions)
 
     def run_temp(self, **kwargs):
         """

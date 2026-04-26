@@ -12,6 +12,7 @@ from qcodes_loop.data.data_set import DataSet, load_data, new_data
 from qcodes_loop.data.hdf5_format import HDF5Format, str_to_bool
 from qcodes_loop.data.location import FormatLocation
 from qcodes_loop.loops import Loop
+from qcodes_loop.sweep_values import Sweeper
 from qcodes_loop.tests.common import compare_dictionaries
 
 from .data_mocks import DataSet1D, DataSet2D
@@ -134,7 +135,7 @@ class TestHDF5_Format(TestCase):
         MockPar = MockParabola(name="Loop_writing_test")
         station.add_component(MockPar)
         # # added to station to test snapshot at a later stage
-        loop = Loop(MockPar.x[-100:100:20]).each(MockPar.skewed_parabola)
+        loop = Loop(Sweeper(MockPar.x)[-100:100:20]).each(MockPar.skewed_parabola)
         data1 = loop.run(name="MockLoop_hdf5_test", formatter=self.formatter)
         data2 = DataSet(location=data1.location, formatter=self.formatter)
         data2.read()
@@ -183,8 +184,8 @@ class TestHDF5_Format(TestCase):
         MockPar = MockParabola(name="Loop_writing_test_2D")
         station.add_component(MockPar)
         loop = (
-            Loop(MockPar.x[-100:100:20])
-            .loop(MockPar.y[-50:50:10])
+            Loop(Sweeper(MockPar.x)[-100:100:20])
+            .loop(Sweeper(MockPar.y)[-50:50:10])
             .each(MockPar.skewed_parabola)
         )
         data1 = loop.run(name="MockLoop_hdf5_test", formatter=self.formatter)

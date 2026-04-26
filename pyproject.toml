@@ -122,6 +122,3 @@ match = ["v*"]
 [tool.versioningit.onbuild]
 source-file = "src/qcodes_loop/_version.py"
 build-file = "qcodes_loop/_version.py"
-
-[tool.uv.sources]
-qcodes = { path = "../Qcodes", editable = true }
