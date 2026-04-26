@@ -1,7 +1,7 @@
 import qcodes
 
 import qcodes_loop._version
-from qcodes_loop.sweep_values import Sweeper
+from qcodes_loop.sweep_values import Sweeper, SweepFixedValues, SweepValues
 
 __version__ = qcodes_loop._version.__version__
 
