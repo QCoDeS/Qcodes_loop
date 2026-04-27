@@ -1,4 +1,5 @@
 """Standard location_provider class(es) for creating DataSet locations."""
+
 import re
 import string
 from datetime import datetime
@@ -8,7 +9,6 @@ import qcodes
 
 
 class SafeFormatter(string.Formatter):
-
     """Modified string formatter that doesn't complain about missing keys."""
 
     def get_value(self, key, args, kwargs):
@@ -16,11 +16,10 @@ class SafeFormatter(string.Formatter):
         try:
             return super().get_value(key, args, kwargs)
         except:
-            return f'{{{key}}}'
+            return f"{{{key}}}"
 
 
 class FormatLocation:
-
     """
     This is the default DataSet Location provider.
 
@@ -85,30 +84,33 @@ class FormatLocation:
         as '{date:%Y-%m-%d}' or '{counter:03}'
     """
 
-    default_fmt = qcodes.config['core']['default_fmt']
+    default_fmt = qcodes.config["core"]["default_fmt"]
     default_fmt = cast(str, default_fmt)
 
-    def __init__(self, fmt=None, fmt_date=None, fmt_time=None,
-                 fmt_counter=None, record=None):
+    def __init__(
+        self, fmt=None, fmt_date=None, fmt_time=None, fmt_counter=None, record=None
+    ):
         # TODO(giulioungaretti) this should be
         # FormatLocation.default_fmt
         self.fmt = fmt or self.default_fmt
-        self.fmt_date = fmt_date or '%Y-%m-%d'
-        self.fmt_time = fmt_time or '%H-%M-%S'
-        self.fmt_counter = fmt_counter or '{:03}'
+        self.fmt_date = fmt_date or "%Y-%m-%d"
+        self.fmt_time = fmt_time or "%H-%M-%S"
+        self.fmt_counter = fmt_counter or "{:03}"
         self.base_record = record
         self.formatter = SafeFormatter()
 
         self.counter = 0
         for testval in (1, 23, 456, 7890):
             if self._findint(self.fmt_counter.format(testval)) != testval:
-                raise ValueError('fmt_counter must produce a correct integer '
-                                 'representation of its argument (eg "{:03}")',
-                                 fmt_counter)
+                raise ValueError(
+                    "fmt_counter must produce a correct integer "
+                    'representation of its argument (eg "{:03}")',
+                    fmt_counter,
+                )
 
     def _findint(self, s):
         try:
-            return int(re.findall(r'\d+', s)[0])
+            return int(re.findall(r"\d+", s)[0])
         except:
             return 0
 
@@ -127,24 +129,25 @@ class FormatLocation:
         time_now = datetime.now()
         date = time_now.strftime(self.fmt_date)
         time = time_now.strftime(self.fmt_time)
-        format_record = {'date': date, 'time': time}
+        format_record = {"date": date, "time": time}
 
         if self.base_record:
             format_record.update(self.base_record)
         if record:
             format_record.update(record)
 
-        if 'counter' in format_record:
-            raise KeyError('you must not provide a counter in your record.',
-                           format_record)
+        if "counter" in format_record:
+            raise KeyError(
+                "you must not provide a counter in your record.", format_record
+            )
 
-        if ('name' in format_record) and ('{name}' not in loc_fmt):
-            loc_fmt += '_{name}'
+        if ("name" in format_record) and ("{name}" not in loc_fmt):
+            loc_fmt += "_{name}"
 
-        if '{counter}' not in loc_fmt:
+        if "{counter}" not in loc_fmt:
             location = self.formatter.format(loc_fmt, **format_record)
             if io.list(location):
-                loc_fmt += '_{counter}'
+                loc_fmt += "_{counter}"
                 # redirect to the counter block below, but starting from 2
                 # because the already existing file counts like 1
                 existing_count = 1
@@ -156,19 +159,19 @@ class FormatLocation:
 
         # now search existing files for the next allowed counter
 
-        head_fmt = loc_fmt.split('{counter}', 1)[0]
+        head_fmt = loc_fmt.split("{counter}", 1)[0]
         # io.join will normalize slashes in head to match the locations
         # returned by io.list
         head = io.join(self.formatter.format(head_fmt, **format_record))
 
-        file_list = io.list(head + '*', maxdepth=0, include_dirs=True)
+        file_list = io.list(head + "*", maxdepth=0, include_dirs=True)
 
         for f in file_list:
-            cnt = self._findint(f[len(head):])
+            cnt = self._findint(f[len(head) :])
             existing_count = max(existing_count, cnt)
 
         self.counter = existing_count + 1
-        format_record['counter'] = self.fmt_counter.format(self.counter)
+        format_record["counter"] = self.fmt_counter.format(self.counter)
         location = self.formatter.format(loc_fmt, **format_record)
 
         return location

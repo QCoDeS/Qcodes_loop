@@ -8,6 +8,7 @@ from qcodes.utils import full_class
 
 from qcodes_loop.actions import _actions_snapshot
 from qcodes_loop.loops import Loop
+from qcodes_loop.sweep_values import Sweeper
 
 
 class Measure(Metadatable):
@@ -21,13 +22,14 @@ class Measure(Metadatable):
             Scalars returned by an action will be saved as length-1 arrays,
             with a dummy setpoint for consistency with other DataSets.
     """
-    dummy_parameter = Parameter(name='single',
-                                label='Single Measurement',
-                                set_cmd=None, get_cmd=None)
+
+    dummy_parameter = Parameter(
+        name="single", label="Single Measurement", set_cmd=None, get_cmd=None
+    )
 
     def __init__(self, *actions):
         super().__init__()
-        self._dummyLoop = Loop(self.dummy_parameter[0]).each(*actions)
+        self._dummyLoop = Loop(Sweeper(self.dummy_parameter)[0]).each(*actions)
 
     def run_temp(self, **kwargs):
         """
@@ -84,8 +86,7 @@ class Measure(Metadatable):
         data_set.location = False
 
         # run the measurement as if it were a Loop
-        self._dummyLoop.run(use_threads=use_threads,
-                            station=station, quiet=True)
+        self._dummyLoop.run(use_threads=use_threads, station=station, quiet=True)
 
         # look for arrays that are unnecessarily nested, and un-nest them
         all_unnested = True
@@ -118,7 +119,7 @@ class Measure(Metadatable):
         # Do we still need the dummy setpoint array at all?
         if all_unnested:
             del data_set.arrays[dummy_setpoint.array_id]
-            if hasattr(data_set, 'action_id_map'):
+            if hasattr(data_set, "action_id_map"):
                 del data_set.action_id_map[dummy_setpoint.action_indices]
 
         # now put back in the DataSet location and save it
@@ -129,22 +130,26 @@ class Measure(Metadatable):
         # puts in a 'loop' section that we need to replace with 'measurement'
         # but we use the info from 'loop' to ensure consistency and avoid
         # duplication.
-        LOOP_SNAPSHOT_KEYS = ['ts_start', 'ts_end', 'use_threads']
-        data_set.add_metadata({'measurement': {
-            k: data_set.metadata['loop'][k] for k in LOOP_SNAPSHOT_KEYS
-        }})
-        del data_set.metadata['loop']
+        LOOP_SNAPSHOT_KEYS = ["ts_start", "ts_end", "use_threads"]
+        data_set.add_metadata(
+            {
+                "measurement": {
+                    k: data_set.metadata["loop"][k] for k in LOOP_SNAPSHOT_KEYS
+                }
+            }
+        )
+        del data_set.metadata["loop"]
 
         # actions are included in self.snapshot() rather than in
         # LOOP_SNAPSHOT_KEYS because they are useful if someone just
         # wants a local snapshot of the Measure object
-        data_set.add_metadata({'measurement': self.snapshot()})
+        data_set.add_metadata({"measurement": self.snapshot()})
 
         data_set.save_metadata()
 
         if not quiet:
             print(repr(data_set))
-            print(datetime.now().strftime('acquired at %Y-%m-%d %H:%M:%S'))
+            print(datetime.now().strftime("acquired at %Y-%m-%d %H:%M:%S"))
 
         return data_set
 
@@ -154,6 +159,6 @@ class Measure(Metadatable):
         params_to_skip_update: Sequence[str] | None = None,
     ):
         return {
-            '__class__': full_class(self),
-            'actions': _actions_snapshot(self._dummyLoop.actions, update)
+            "__class__": full_class(self),
+            "actions": _actions_snapshot(self._dummyLoop.actions, update),
         }

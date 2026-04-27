@@ -29,7 +29,7 @@ def make_simulated_xyz(
     x.fill(np.nan)
     z = x.copy()
     for stepind in range(step):
-        xrow =  xrange.copy()
+        xrow = xrange.copy()
         if stepind == step - 1:
             xrow[interrupt_at:] = np.nan
         zrow = np.random.randn(len(xrange))
@@ -57,10 +57,7 @@ def test_make_args_for_pcolormesh():
     # up scans, down scans
 
     for xsign, ysign in product([-1, 1], repeat=2):
-
-        x, y, z = make_simulated_xyz(xsign*xrange,
-                                     ysign*yrange,
-                                     step=N//2+1)
+        x, y, z = make_simulated_xyz(xsign * xrange, ysign * yrange, step=N // 2 + 1)
 
         args_masked = [np.ma.masked_invalid(arg) for arg in [x, y, z]]
 
@@ -71,10 +68,9 @@ def test_make_args_for_pcolormesh():
 
     # an interrupted scan
 
-    x, y, z = make_simulated_xyz(xsign*xrange,
-                                 ysign*yrange,
-                                 step=N//2+1,
-                                 interrupt_at=M//2+1)
+    x, y, z = make_simulated_xyz(
+        xsign * xrange, ysign * yrange, step=N // 2 + 1, interrupt_at=M // 2 + 1
+    )
 
     args_masked = [np.ma.masked_invalid(arg) for arg in [x, y, z]]
 

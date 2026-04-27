@@ -18,15 +18,33 @@ class BasePlot:
             for example marker size or color can contain data
     """
 
-    def __init__(self, interval=1, data_keys='xyz'):
+    def __init__(self, interval=1, data_keys="xyz"):
         BasePlot.latest_plot = self
         self.data_keys = data_keys
         self.traces = []
         self.data_updaters = set()
         self.interval = interval
-        self.standardunits = ['V', 's', 'J', 'W', 'm', 'eV', 'A', 'K', 'g',
-                              'Hz', 'rad', 'T', 'H', 'F', 'Pa', 'C', 'Ω', 'Ohm',
-                              'S']
+        self.standardunits = [
+            "V",
+            "s",
+            "J",
+            "W",
+            "m",
+            "eV",
+            "A",
+            "K",
+            "g",
+            "Hz",
+            "rad",
+            "T",
+            "H",
+            "F",
+            "Pa",
+            "C",
+            "Ω",
+            "Ohm",
+            "S",
+        ]
 
     def clear(self):
         """
@@ -128,8 +146,8 @@ class BasePlot:
             self.data_updaters.add(updater)
         else:
             for key in self.data_keys:
-                data_array = plot_config.get(key, '')
-                if hasattr(data_array, 'data_set'):
+                data_array = plot_config.get(key, "")
+                if hasattr(data_array, "data_set"):
                     if data_array.data_set is not None:
                         self.data_updaters.add(data_array.data_set.sync)
 
@@ -138,7 +156,7 @@ class BasePlot:
         # If we have new update functions, re-activate the updater
         # by reinstating its update interval
         if self.data_updaters:
-            if hasattr(self, 'update_widget'):
+            if hasattr(self, "update_widget"):
                 self.update_widget.interval = self.interval
 
     def get_default_title(self):
@@ -157,17 +175,17 @@ class BasePlot:
         """
         title_parts = []
         for trace in self.traces:
-            config = trace['config']
-            if 'title' in config:  # can be passed using **kw
-                return config['title']
+            config = trace["config"]
+            if "title" in config:  # can be passed using **kw
+                return config["title"]
             for part in self.data_keys:
-                data_array = config.get(part, '')
-                if hasattr(data_array, 'data_set'):
+                data_array = config.get(part, "")
+                if hasattr(data_array, "data_set"):
                     if data_array.data_set is not None:
                         location = data_array.data_set.location
                         if location and location not in title_parts:
                             title_parts.append(location)
-        return ', '.join(title_parts)
+        return ", ".join(title_parts)
 
     @staticmethod
     def get_label(data_array):
@@ -182,10 +200,9 @@ class BasePlot:
 
         """
         # TODO this should really be a static method
-        name = (getattr(data_array, 'label', '') or
-                getattr(data_array, 'name', ''))
-        unit = getattr(data_array, 'unit', '')
-        return  name, unit
+        name = getattr(data_array, "label", "") or getattr(data_array, "name", "")
+        unit = getattr(data_array, "unit", "")
+        return name, unit
 
     @staticmethod
     def expand_trace(args, kwargs):
@@ -227,13 +244,13 @@ class BasePlot:
         # return the new kwargs  instead of modifying in place
         # TODO this should really be a static method
         if args:
-            if hasattr(args[-1][0], '__len__'):
+            if hasattr(args[-1][0], "__len__"):
                 # 2D (or higher... but ignore this for now)
                 # this test works for both numpy arrays and bare sequences
-                axletters = 'xyz'
+                axletters = "xyz"
                 ndim = 2
             else:
-                axletters = 'xy'
+                axletters = "xy"
                 ndim = 1
 
             if len(args) not in (1, len(axletters)):
@@ -241,17 +258,17 @@ class BasePlot:
                     f"{ndim}D data needs 1 or {len(axletters)} unnamed args"
                 )
 
-            arg_axletters = axletters[-len(args):]
+            arg_axletters = axletters[-len(args) :]
 
             for arg, arg_axletters in zip(args, arg_axletters):
                 if arg_axletters in kwargs:
-                    raise ValueError(arg_axletters + ' data provided twice')
+                    raise ValueError(arg_axletters + " data provided twice")
                 kwargs[arg_axletters] = arg
 
         # reset axletters, we may or may not have found them above
-        axletters = 'xyz' if 'z' in kwargs else 'xy'
+        axletters = "xyz" if "z" in kwargs else "xy"
         main_data = kwargs[axletters[-1]]
-        if hasattr(main_data, 'set_arrays'):
+        if hasattr(main_data, "set_arrays"):
             num_axes = len(axletters) - 1
             # things will probably fail if we try to plot arrays of the
             # wrong dimension... but we'll give it a shot anyway.
@@ -296,7 +313,7 @@ class BasePlot:
         """
         Stop automatic updates to this plot, by canceling its update widget
         """
-        if hasattr(self, 'update_widget'):
+        if hasattr(self, "update_widget"):
             self.update_widget.halt()
 
     def save(self, filename=None):

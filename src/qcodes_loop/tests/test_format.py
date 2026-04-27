@@ -15,7 +15,7 @@ from .data_mocks import DataSet1D, DataSetCombined, file_1d, files_combined
 class TestBaseFormatter(TestCase):
     def setUp(self):
         self.io = DataSet.default_io
-        self.locations = ('_simple1d_', '_combined_')
+        self.locations = ("_simple1d_", "_combined_")
 
         for location in self.locations:
             self.assertFalse(self.io.list(location))
@@ -26,16 +26,15 @@ class TestBaseFormatter(TestCase):
 
     def test_overridable_methods(self):
         formatter = Formatter()
-        loc_fmt = 'data/{date}/#{counter}_{name}_{date}_{time}'
-        rcd = {'name': 'test_overridable_methods'}
+        loc_fmt = "data/{date}/#{counter}_{name}_{date}_{time}"
+        rcd = {"name": "test_overridable_methods"}
         loc_provider = FormatLocation(fmt=loc_fmt, record=rcd)
-        data = DataSet1D(name="test_overridable",
-                         location=loc_provider)
+        data = DataSet1D(name="test_overridable", location=loc_provider)
 
         with self.assertRaises(NotImplementedError):
             formatter.write(data, data.io, data.location)
         with self.assertRaises(NotImplementedError):
-            formatter.read_one_file(data, 'a file!', set())
+            formatter.read_one_file(data, "a file!", set())
 
         with self.assertRaises(NotImplementedError):
             formatter.write_metadata(data, data.io, data.location)
@@ -44,49 +43,46 @@ class TestBaseFormatter(TestCase):
 
     def test_no_files(self):
         formatter = Formatter()
-        data = DataSet1D(
-            name="test_no_file",
-            location=self.locations[0])
+        data = DataSet1D(name="test_no_file", location=self.locations[0])
         with self.assertRaises(IOError):
             formatter.read(data)
 
     def test_init_and_bad_read(self):
         location = self.locations[0]
-        path = f'./{location}/bad.dat'
+        path = f"./{location}/bad.dat"
 
         class MyFormatter(Formatter):
             def read_one_file(self, data_set, f, ids_read):
                 s = f.read()
-                if 'garbage' not in s:
-                    raise Exception('reading the wrong file?')
+                if "garbage" not in s:
+                    raise Exception("reading the wrong file?")
 
                 # mark this file as read, before generating an error
-                if not hasattr(data_set, 'files_read'):
+                if not hasattr(data_set, "files_read"):
                     data_set.files_read = []
                 data_set.files_read.append(f.name)
-                raise ValueError('garbage in, garbage out')
+                raise ValueError("garbage in, garbage out")
 
             def read_metadata(self, data_set):
                 pass
 
         formatter = MyFormatter()
-        data = DataSet1D(location=location,
-                         name="test_init_and_bad_read")
+        data = DataSet1D(location=location, name="test_init_and_bad_read")
         data.x_set.ndarray = None
         data.y.ndarray = None
 
         os.makedirs(os.path.dirname(path), exist_ok=True)
-        with open(path, 'w') as f:
-            f.write('garbage')
+        with open(path, "w") as f:
+            f.write("garbage")
 
         with LogCapture() as logs:
             formatter.read(data)
 
         # we tried to read this file but it generated an error
-        self.assertEqual(logs.value.count('error reading file'), 1, logs.value)
+        self.assertEqual(logs.value.count("error reading file"), 1, logs.value)
         self.assertEqual(data.files_read, [os.path.abspath(path)])
 
-        expected_array_repr = repr([float('nan')] * 5)
+        expected_array_repr = repr([float("nan")] * 5)
         self.assertEqual(repr(data.x_set.tolist()), expected_array_repr)
         self.assertEqual(repr(data.y.tolist()), expected_array_repr)
 
@@ -104,12 +100,12 @@ class TestBaseFormatter(TestCase):
         self.assertEqual(g1d.shape, (2,))
         self.assertEqual(g1d.set_arrays, (data.x_set,))
         self.assertEqual(g1d.data, (data.y1, data.y2))
-        self.assertEqual(g1d.name, 'x_set')
+        self.assertEqual(g1d.name, "x_set")
 
         self.assertEqual(g2d.shape, (2, 3))
         self.assertEqual(g2d.set_arrays, (data.x_set, data.y_set))
         self.assertEqual(g2d.data, (data.z1, data.z2))
-        self.assertEqual(g2d.name, 'x_set_y_set')
+        self.assertEqual(g2d.name, "x_set_y_set")
 
     def test_match_save_range(self):
         formatter = Formatter()
@@ -125,8 +121,7 @@ class TestBaseFormatter(TestCase):
             for lsi_y in [None, 1, 4]:
                 data.y.last_saved_index = lsi_y
                 for fe in [True, False]:
-                    save_range = formatter.match_save_range(
-                        group, file_exists=fe)
+                    save_range = formatter.match_save_range(group, file_exists=fe)
                     self.assertEqual(save_range, None)
 
         # consistent last_saved_index: if it's None or within the
@@ -139,18 +134,21 @@ class TestBaseFormatter(TestCase):
             # to greatest extent so these situations are identical
             # if only_complete is True, only gets to the last common point
             for xmr, ymr, last_common in (
-                    [(4, 4), (3, 3), 3],
-                    [(3, 4), None, None],
-                    [None, (3, 4), None]):
+                [(4, 4), (3, 3), 3],
+                [(3, 4), None, None],
+                [None, (3, 4), None],
+            ):
                 data.x_set.modified_range = xmr
                 data.y.modified_range = ymr
 
                 save_range = formatter.match_save_range(
-                    group, file_exists=False, only_complete=False)
+                    group, file_exists=False, only_complete=False
+                )
                 self.assertEqual(save_range, (0, 4))
 
                 save_range = formatter.match_save_range(
-                    group, file_exists=True, only_complete=False)
+                    group, file_exists=True, only_complete=False
+                )
                 self.assertEqual(save_range, (start, 4))
 
                 save_all = formatter.match_save_range(group, file_exists=False)
@@ -160,10 +158,8 @@ class TestBaseFormatter(TestCase):
                     # save, we still go up to last_saved_index (wouldn't want
                     # this write to delete data!)
                     last_save = max(last_common, lsi) if lsi else last_common
-                    self.assertEqual(save_all, (0, last_save),
-                                     (lsi, xmr, ymr))
-                    self.assertEqual(save_inc, (start, last_save),
-                                     (lsi, xmr, ymr))
+                    self.assertEqual(save_all, (0, last_save), (lsi, xmr, ymr))
+                    self.assertEqual(save_inc, (start, last_save), (lsi, xmr, ymr))
                 else:
                     if lsi is None:
                         self.assertIsNone(save_all)
@@ -183,7 +179,7 @@ class TestBaseFormatter(TestCase):
 class TestGNUPlotFormat(TestCase):
     def setUp(self):
         self.io = DataSet.default_io
-        self.locations = ('_simple1d_', '_combined_')
+        self.locations = ("_simple1d_", "_combined_")
 
         for location in self.locations:
             self.assertFalse(self.io.list(location))
@@ -207,25 +203,23 @@ class TestGNUPlotFormat(TestCase):
     def test_full_write(self):
         formatter = GNUPlotFormat()
         location = self.locations[0]
-        data = DataSet1D(
-            name="test_full_write",
-            location=location)
+        data = DataSet1D(name="test_full_write", location=location)
 
         formatter.write(data, data.io, data.location)
 
-        with open(location + '/x_set.dat') as f:
+        with open(location + "/x_set.dat") as f:
             self.assertEqual(f.read(), file_1d())
 
         # check that we can add comment lines randomly into the file
         # as long as it's after the first three lines, which are comments
         # with well-defined meaning,
         # and that we can un-quote the labels
-        lines = file_1d().split('\n')
-        lines[1] = lines[1].replace('"', '')
-        lines[3:3] = ['# this data is awesome!']
-        lines[6:6] = ['# the next point is my favorite.']
-        with open(location + '/x_set.dat', 'w') as f:
-            f.write('\n'.join(lines))
+        lines = file_1d().split("\n")
+        lines[1] = lines[1].replace('"', "")
+        lines[3:3] = ["# this data is awesome!"]
+        lines[6:6] = ["# the next point is my favorite."]
+        with open(location + "/x_set.dat", "w") as f:
+            f.write("\n".join(lines))
 
         # normally this would be just done by data2 = load_data(location)
         # but we want to work directly with the Formatter interface here
@@ -245,17 +239,16 @@ class TestGNUPlotFormat(TestCase):
 
         # first: trying to read into a dataset that already has the
         # wrong size
-        x = DataArray(name='x_set', label='X', preset_data=(1., 2.))
-        y = DataArray(name='y', label='Y', preset_data=(3., 4.),
-                      set_arrays=(x,))
-        data3 = new_data(arrays=(x, y), location=location + 'XX')
+        x = DataArray(name="x_set", label="X", preset_data=(1.0, 2.0))
+        y = DataArray(name="y", label="Y", preset_data=(3.0, 4.0), set_arrays=(x,))
+        data3 = new_data(arrays=(x, y), location=location + "XX")
         # initially give it a different location so we can make it without
         # error, then change back to the location we want.
         data3.location = location
         with LogCapture() as logs:
             formatter.read(data3)
 
-        self.assertTrue('ValueError' in logs.value, logs.value)
+        self.assertTrue("ValueError" in logs.value, logs.value)
 
         # no problem reading again if only data has changed, it gets
         # overwritten with the disk copy
@@ -266,13 +259,15 @@ class TestGNUPlotFormat(TestCase):
         self.assertEqual(data2.y[2], 5)
 
     def test_format_options(self):
-        formatter = GNUPlotFormat(extension='.splat', terminator='\r',
-                                  separator='  ', comment='?:',
-                                  number_format='5.2f')
+        formatter = GNUPlotFormat(
+            extension=".splat",
+            terminator="\r",
+            separator="  ",
+            comment="?:",
+            number_format="5.2f",
+        )
         location = self.locations[0]
-        data = DataSet1D(
-            name="test_format_option",
-            location=location)
+        data = DataSet1D(name="test_format_option", location=location)
 
         formatter.write(data, data.io, data.location)
 
@@ -281,17 +276,21 @@ class TestGNUPlotFormat(TestCase):
         # (os.linesep) and all of the options we support get converted
         # back to '\n' on read. So I'm tempted to just take out terminator
         # as an option rather than turn this feature off.
-        odd_format = '\n'.join([
-            '?:x_set  y',
-            '?:"X"  "Y"',
-            '?:5',
-            ' 1.00   3.00',
-            ' 2.00   4.00',
-            ' 3.00   5.00',
-            ' 4.00   6.00',
-            ' 5.00   7.00', ''])
+        odd_format = "\n".join(
+            [
+                "?:x_set  y",
+                '?:"X"  "Y"',
+                "?:5",
+                " 1.00   3.00",
+                " 2.00   4.00",
+                " 3.00   5.00",
+                " 4.00   6.00",
+                " 5.00   7.00",
+                "",
+            ]
+        )
 
-        with open(location + '/x_set.splat') as f:
+        with open(location + "/x_set.splat") as f:
             self.assertEqual(f.read(), odd_format)
 
     def add_star(self, path):
@@ -304,8 +303,8 @@ class TestGNUPlotFormat(TestCase):
         are written only if a file exists, i.e. "after_write"
         """
         if os.path.isfile(path):
-            with open(path, 'a') as f:
-                f.write('*')
+            with open(path, "a") as f:
+                f.write("*")
         else:
             self.stars_before_write += 1
 
@@ -313,16 +312,14 @@ class TestGNUPlotFormat(TestCase):
         formatter = GNUPlotFormat()
         location = self.locations[0]
         location2 = self.locations[1]  # use 2nd location for reading back in
-        data = DataSet1D(
-            name="test_incremental_write",
-            location=location)
-        path = location + '/x_set.dat'
+        data = DataSet1D(name="test_incremental_write", location=location)
+        path = location + "/x_set.dat"
 
         data_copy = DataSet1D(False)
 
         # empty the data and mark it as unmodified
-        data.x_set[:] = float('nan')
-        data.y[:] = float('nan')
+        data.x_set[:] = float("nan")
+        data.y[:] = float("nan")
         data.x_set.modified_range = None
         data.y.modified_range = None
 
@@ -348,24 +345,27 @@ class TestGNUPlotFormat(TestCase):
             # we wrote to a second location without the stars, so we can read
             # back in and make sure that we get the right last_saved_index
             # for the amount of data we've read.
-            reread_data = load_data(location=location2, formatter=formatter,
-                                    io=data.io)
-            self.assertEqual(repr(reread_data.x_set.tolist()),
-                             repr(data.x_set.tolist()))
-            self.assertEqual(repr(reread_data.y.tolist()),
-                             repr(data.y.tolist()))
+            reread_data = load_data(location=location2, formatter=formatter, io=data.io)
+            self.assertEqual(
+                repr(reread_data.x_set.tolist()), repr(data.x_set.tolist())
+            )
+            self.assertEqual(repr(reread_data.y.tolist()), repr(data.y.tolist()))
             self.assertEqual(reread_data.x_set.last_saved_index, i)
             self.assertEqual(reread_data.y.last_saved_index, i)
 
-        starred_file = '\n'.join([
-            '# x_set\ty',
-            '# "X"\t"Y"',
-            '# 5',
-            '1\t3',
-            '**2\t4',
-            '**3\t5',
-            '**4\t6',
-            '**5\t7', '*'])
+        starred_file = "\n".join(
+            [
+                "# x_set\ty",
+                '# "X"\t"Y"',
+                "# 5",
+                "1\t3",
+                "**2\t4",
+                "**3\t5",
+                "**4\t6",
+                "**5\t7",
+                "*",
+            ]
+        )
 
         with open(path) as f:
             self.assertEqual(f.read(), starred_file)
@@ -378,14 +378,14 @@ class TestGNUPlotFormat(TestCase):
 
         with self.assertRaises(ValueError):
             # terminator must be \r, \n, or \r\n
-            GNUPlotFormat(terminator='\n\r')
+            GNUPlotFormat(terminator="\n\r")
 
         with self.assertRaises(ValueError):
             # this is not CSV - separator must be whitespace
-            GNUPlotFormat(separator=',')
+            GNUPlotFormat(separator=",")
 
         with self.assertRaises(ValueError):
-            GNUPlotFormat(comment='  \r\n\t  ')
+            GNUPlotFormat(comment="  \r\n\t  ")
 
     def test_read_errors(self):
         formatter = GNUPlotFormat()
@@ -394,26 +394,25 @@ class TestGNUPlotFormat(TestCase):
         location = self.locations[0]
         data = DataSet(location=location)
         os.makedirs(location, exist_ok=True)
-        with open(location + '/x_set.dat', 'w') as f:
-            f.write('1\t2\n' + file_1d())
+        with open(location + "/x_set.dat", "w") as f:
+            f.write("1\t2\n" + file_1d())
         with LogCapture() as logs:
             formatter.read(data)
 
-        self.assertTrue('ValueError' in logs.value, logs.value)
+        self.assertTrue("ValueError" in logs.value, logs.value)
 
         # same data array in 2 files
         location = self.locations[1]
         data = DataSet(location=location)
         os.makedirs(location, exist_ok=True)
-        with open(location + '/x_set.dat', 'w') as f:
-            f.write('\n'.join(['# x_set\ty',
-                               '# "X"\t"Y"', '# 2', '1\t2', '3\t4']))
-        with open(location + '/q.dat', 'w') as f:
-            f.write('\n'.join(['# q\ty', '# "Q"\t"Y"', '# 2', '1\t2', '3\t4']))
+        with open(location + "/x_set.dat", "w") as f:
+            f.write("\n".join(["# x_set\ty", '# "X"\t"Y"', "# 2", "1\t2", "3\t4"]))
+        with open(location + "/q.dat", "w") as f:
+            f.write("\n".join(["# q\ty", '# "Q"\t"Y"', "# 2", "1\t2", "3\t4"]))
         with LogCapture() as logs:
             formatter.read(data)
 
-        self.assertTrue('ValueError' in logs.value, logs.value)
+        self.assertTrue("ValueError" in logs.value, logs.value)
 
     def test_multifile(self):
         formatter = GNUPlotFormat()
@@ -424,14 +423,13 @@ class TestGNUPlotFormat(TestCase):
 
         filex, filexy = files_combined()
 
-        with open(location + '/x_set.dat') as f:
+        with open(location + "/x_set.dat") as f:
             self.assertEqual(f.read(), filex)
-        with open(location + '/x_set_y_set.dat') as f:
+        with open(location + "/x_set_y_set.dat") as f:
             self.assertEqual(f.read(), filexy)
 
         data2 = DataSet(location=location)
         formatter.read(data2)
 
-        for array_id in ('x_set', 'y1', 'y2', 'y_set', 'z1', 'z2'):
-            self.checkArraysEqual(data2.arrays[array_id],
-                                  data.arrays[array_id])
+        for array_id in ("x_set", "y1", "y2", "y_set", "z1", "z2"):
+            self.checkArraysEqual(data2.arrays[array_id], data.arrays[array_id])

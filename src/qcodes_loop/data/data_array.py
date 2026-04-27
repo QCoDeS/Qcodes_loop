@@ -12,8 +12,8 @@ from qcodes.utils import DelegateAttributes, full_class
 
 _LOG = logging.getLogger(__name__)
 
-class DataArray(DelegateAttributes):
 
+class DataArray(DelegateAttributes):
     """
     A container for one parameter in a measurement loop.
 
@@ -91,35 +91,46 @@ class DataArray(DelegateAttributes):
 
     # attributes of self to include in the snapshot
     SNAP_ATTRS = (
-        'array_id',
-        'name',
-        'shape',
-        'unit',
-        'label',
-        'action_indices',
-        'is_setpoint')
+        "array_id",
+        "name",
+        "shape",
+        "unit",
+        "label",
+        "action_indices",
+        "is_setpoint",
+    )
 
     # attributes of the parameter (or keys in the incoming snapshot)
     # to copy to DataArray attributes, if they aren't set some other way
-    COPY_ATTRS_FROM_INPUT = (
-        'name',
-        'label',
-        'unit')
+    COPY_ATTRS_FROM_INPUT = ("name", "label", "unit")
 
     # keys in the parameter snapshot to omit from our snapshot
     SNAP_OMIT_KEYS = (
-        'ts',
-        'value',
-        '__class__',
-        'set_arrays',
-        'shape',
-        'array_id',
-        'action_indices')
+        "ts",
+        "value",
+        "__class__",
+        "set_arrays",
+        "shape",
+        "array_id",
+        "action_indices",
+    )
 
-    def __init__(self, parameter=None, name=None, full_name=None, label=None,
-                 snapshot=None, array_id=None, set_arrays=(), shape=None,
-                 action_indices=(), unit=None, units=None, is_setpoint=False,
-                 preset_data=None):
+    def __init__(
+        self,
+        parameter=None,
+        name=None,
+        full_name=None,
+        label=None,
+        snapshot=None,
+        array_id=None,
+        set_arrays=(),
+        shape=None,
+        action_indices=(),
+        unit=None,
+        units=None,
+        is_setpoint=False,
+        preset_data=None,
+    ):
         self.name = name
         self.full_name = full_name or name
         self.label = label
@@ -152,25 +163,23 @@ class DataArray(DelegateAttributes):
         self._snapshot_input = {}
 
         if parameter is not None:
-            param_full_name = getattr(parameter, 'full_name', None)
+            param_full_name = getattr(parameter, "full_name", None)
             if param_full_name and not full_name:
                 self.full_name = parameter.full_name
 
-            if hasattr(parameter, 'snapshot') and not snapshot:
+            if hasattr(parameter, "snapshot") and not snapshot:
                 snapshot = parameter.snapshot()
             else:
                 # TODO: why is this in an else clause?
                 for attr in self.COPY_ATTRS_FROM_INPUT:
-                    if (hasattr(parameter, attr) and
-                            not getattr(self, attr, None)):
+                    if hasattr(parameter, attr) and not getattr(self, attr, None):
                         setattr(self, attr, getattr(parameter, attr))
 
         for key, value in snapshot.items():
             if key not in self.SNAP_OMIT_KEYS:
                 self._snapshot_input[key] = value
 
-                if (key in self.COPY_ATTRS_FROM_INPUT and
-                        not getattr(self, key, None)):
+                if key in self.COPY_ATTRS_FROM_INPUT and not getattr(self, key, None):
                     setattr(self, key, value)
 
         if not self.label:
@@ -193,10 +202,12 @@ class DataArray(DelegateAttributes):
 
     @data_set.setter
     def data_set(self, new_data_set):
-        if (self._data_set is not None and
-                new_data_set is not None and
-                self._data_set != new_data_set):
-            raise RuntimeError('A DataArray can only be part of one DataSet')
+        if (
+            self._data_set is not None
+            and new_data_set is not None
+            and self._data_set != new_data_set
+        ):
+            raise RuntimeError("A DataArray can only be part of one DataSet")
         self._data_set = new_data_set
 
     def nest(self, size, action_index=None, set_array=None):
@@ -226,20 +237,20 @@ class DataArray(DelegateAttributes):
         """
         if self.ndarray is not None and not self._preset:
             raise RuntimeError(
-                "Only preset arrays can be nested after data " f"is initialized! {self}"
+                f"Only preset arrays can be nested after data is initialized! {self}"
             )
 
         if set_array is None:
             if self.set_arrays:
-                raise TypeError('a setpoint array must be its own inner loop')
+                raise TypeError("a setpoint array must be its own inner loop")
             set_array = self
 
-        self.shape = (size, ) + self.shape
+        self.shape = (size,) + self.shape
 
         if action_index is not None:
-            self.action_indices = (action_index, ) + self.action_indices
+            self.action_indices = (action_index,) + self.action_indices
 
-        self.set_arrays = (set_array, ) + self.set_arrays
+        self.set_arrays = (set_array,) + self.set_arrays
 
         if self._preset:
             inner_data = self.ndarray
@@ -290,9 +301,12 @@ class DataArray(DelegateAttributes):
             if self.shape is None:
                 self.shape = data.shape
             elif data.shape != self.shape:
-                raise ValueError('preset data must be a sequence '
-                                 'with shape matching the array shape',
-                                 data.shape, self.shape)
+                raise ValueError(
+                    "preset data must be a sequence "
+                    "with shape matching the array shape",
+                    data.shape,
+                    self.shape,
+                )
             self.ndarray = data
             self._preset = True
 
@@ -301,8 +315,10 @@ class DataArray(DelegateAttributes):
 
         elif self.ndarray is not None:
             if self.ndarray.shape != self.shape:
-                raise ValueError('data has already been initialized, '
-                                 'but its shape doesn\'t match self.shape')
+                raise ValueError(
+                    "data has already been initialized, "
+                    "but its shape doesn't match self.shape"
+                )
             return
         else:
             self.ndarray = np.ndarray(self.shape)
@@ -320,7 +336,7 @@ class DataArray(DelegateAttributes):
         # what people want anyway.
         if self.ndarray.dtype != float:
             self.ndarray = self.ndarray.astype(float)
-        self.ndarray.fill(float('nan'))
+        self.ndarray.fill(float("nan"))
 
     def __setitem__(self, loop_indices, value):
         """
@@ -343,8 +359,7 @@ class DataArray(DelegateAttributes):
             if isinstance(index, slice):
                 start, stop, step = index.indices(self.shape[i])
                 min_indices[i] = start
-                max_indices[i] = start + (
-                    ((stop - start - 1)//step) * step)
+                max_indices[i] = start + (((stop - start - 1) // step) * step)
 
         min_li = self.flat_index(min_indices, self._min_indices)
         max_li = self.flat_index(max_indices, self._max_indices)
@@ -355,7 +370,7 @@ class DataArray(DelegateAttributes):
     def __getitem__(self, loop_indices):
         return self.ndarray[loop_indices]
 
-    delegate_attr_objects = ['ndarray']
+    delegate_attr_objects = ["ndarray"]
 
     def __len__(self):
         """
@@ -386,13 +401,15 @@ class DataArray(DelegateAttributes):
             int: the resulting flat index.
         """
         if len(indices) < len(self.shape):
-            indices = indices + index_fill[len(indices):]
+            indices = indices + index_fill[len(indices) :]
         return np.ravel_multi_index(tuple(zip(indices)), self.shape)[0]
 
     def _update_modified_range(self, low, high):
         if self.modified_range:
-            self.modified_range = (min(self.modified_range[0], low),
-                                   max(self.modified_range[1], high))
+            self.modified_range = (
+                min(self.modified_range[0], low),
+                max(self.modified_range[1], high),
+            )
         else:
             self.modified_range = (low, high)
 
@@ -411,9 +428,10 @@ class DataArray(DelegateAttributes):
             if last_saved_index >= self.modified_range[1]:
                 self.modified_range = None
             else:
-                self.modified_range = (max(self.modified_range[0],
-                                           last_saved_index + 1),
-                                       self.modified_range[1])
+                self.modified_range = (
+                    max(self.modified_range[0], last_saved_index + 1),
+                    self.modified_range[1],
+                )
         self.last_saved_index = last_saved_index
 
     def clear_save(self):
@@ -439,7 +457,7 @@ class DataArray(DelegateAttributes):
             int: the last flat index which has been synced from the server,
                 or -1 if no data has been synced.
         """
-        if not hasattr(self, 'synced_index'):
+        if not hasattr(self, "synced_index"):
             self.init_data()
             self.synced_index = -1
 
@@ -472,11 +490,7 @@ class DataArray(DelegateAttributes):
         ]
 
         if vals:
-            return {
-                'start': synced_index + 1,
-                'stop': latest_index,
-                'vals': vals
-            }
+            return {"start": synced_index + 1, "stop": latest_index, "vals": vals}
 
     def apply_changes(self, start, stop, vals):
         """
@@ -498,14 +512,17 @@ class DataArray(DelegateAttributes):
         self.synced_index = stop
 
     def __repr__(self):
-        array_id_or_none = f' {self.array_id}' if self.array_id else ''
-        return '{}[{}]:{}\n{}'.format(self.__class__.__name__,
-                                      ','.join(map(str, self.shape)),
-                                      array_id_or_none, repr(self.ndarray))
+        array_id_or_none = f" {self.array_id}" if self.array_id else ""
+        return "{}[{}]:{}\n{}".format(
+            self.__class__.__name__,
+            ",".join(map(str, self.shape)),
+            array_id_or_none,
+            repr(self.ndarray),
+        )
 
     def snapshot(self, update=False):
         """JSON representation of this DataArray."""
-        snap = {'__class__': full_class(self)}
+        snap = {"__class__": full_class(self)}
 
         snap.update(self._snapshot_input)
 
@@ -532,18 +549,19 @@ class DataArray(DelegateAttributes):
             last_index = max(last_index, self.last_saved_index)
         if self.modified_range is not None:
             last_index = max(last_index, self.modified_range[1])
-        if getattr(self, 'synced_index', None) is not None:
+        if getattr(self, "synced_index", None) is not None:
             last_index = max(last_index, self.synced_index)
 
         return (last_index + 1) / self.ndarray.size
 
     def to_xarray(self) -> "xr.DataArray":
-        """ Return this DataArray as an xarray dataarray
+        """Return this DataArray as an xarray dataarray
 
         Returns:
             DataArray in xarray format
         """
         import xarray as xr
+
         xarray_dictionary = data_array_to_xarray_dictionary(self)
         xarray_dataarray = xr.DataArray.from_dict(xarray_dictionary)
         return xarray_dataarray
@@ -561,8 +579,10 @@ class DataArray(DelegateAttributes):
         """
         xarray_dict = xarray_dataarray.to_dict()
         if array_id is None:
-            array_id = list(xarray_dict['dims'])[0]
-        data_array = xarray_data_array_dictionary_to_data_array(array_id, xarray_dict, is_setpoint=False)
+            array_id = list(xarray_dict["dims"])[0]
+        data_array = xarray_data_array_dictionary_to_data_array(
+            array_id, xarray_dict, is_setpoint=False
+        )
         return data_array
 
 

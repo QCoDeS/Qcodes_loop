@@ -5,6 +5,7 @@ Legacy in many ways:
     - assume X server running
     - just test "window creation"
 """
+
 import os
 from unittest import TestCase, skipIf
 
@@ -21,15 +22,15 @@ try:
     import matplotlib
 
     from qcodes_loop.plots.qcmatplotlib import MatPlot
-    matplotlib.use('Agg')
+
+    matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 except Exception:
     noMatPlot = True
 
 
-@skipIf(noQtPlot, '***pyqtgraph plotting cannot be tested***')
+@skipIf(noQtPlot, "***pyqtgraph plotting cannot be tested***")
 class TestQtPlot(TestCase):
-
     def setUp(self):
         pass
 
@@ -45,19 +46,25 @@ class TestQtPlot(TestCase):
 
     def test_simple_plot(self):
         main_QtPlot = QtPlot(
-            window_title='Main plotmon of TestQtPlot',
-            figsize=(600, 400))
+            window_title="Main plotmon of TestQtPlot", figsize=(600, 400)
+        )
 
         x = np.arange(0, 10e-6, 1e-9)
         f = 2e6
-        y = np.cos(2*np.pi*f*x)
+        y = np.cos(2 * np.pi * f * x)
 
         for j in range(4):
-            main_QtPlot.add(x=x, y=y,
-                            xlabel='Time', xunit='s',
-                            ylabel='Amplitude', yunit='V',
-                            subplot=j+1,
-                            symbol='o', symbolSize=5)
+            main_QtPlot.add(
+                x=x,
+                y=y,
+                xlabel="Time",
+                xunit="s",
+                ylabel="Amplitude",
+                yunit="V",
+                subplot=j + 1,
+                symbol="o",
+                symbolSize=5,
+            )
 
     def test_return_handle(self):
         plotQ = QtPlot(remote=False)
@@ -65,9 +72,8 @@ class TestQtPlot(TestCase):
         self.assertIs(return_handle, plotQ.subplots[0].items[0])
 
 
-@skipIf(noMatPlot, '***matplotlib plotting cannot be tested***')
+@skipIf(noMatPlot, "***matplotlib plotting cannot be tested***")
 class TestMatPlot(TestCase):
-
     def setUp(self):
         pass
 

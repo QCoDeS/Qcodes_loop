@@ -71,7 +71,7 @@ class QCoDeSMagic(Magics):
             ...
 
         An explicit example of the line ``for {sweep_vals}:`` could be
-        ``for sweep_parameter.sweep(0, 42, step=1):``
+        ``for Sweeper(sweep_parameter).sweep(0, 42, step=1):``
 
         """
 
@@ -81,63 +81,64 @@ class QCoDeSMagic(Magics):
             return
 
         # Parse line, get measurement name and any possible options
-        options, msmt_name = self.parse_options(line, 'pd:l:x')
-        data_name = options.get('d', 'data')
-        loop_name = options.get('l', 'loop')
+        options, msmt_name = self.parse_options(line, "pd:l:x")
+        data_name = options.get("d", "data")
+        loop_name = options.get("l", "loop")
 
         lines = cell.splitlines()
-        assert lines[0][:3] == 'for', "Measurement must start with for loop"
+        assert lines[0][:3] == "for", "Measurement must start with for loop"
 
-        contents = f'import qcodes\n{loop_name} = '
+        contents = f"import qcodes\n{loop_name} = "
         previous_level = 0
         k = None
         for k, line in enumerate(lines):
-            line, level = line.lstrip(), int((len(line)-len(line.lstrip())) / 4)
+            line, level = line.lstrip(), int((len(line) - len(line.lstrip())) / 4)
 
             if not line:
                 # Empty line, end of loop
                 break
-            elif line[0] == '#':
+            elif line[0] == "#":
                 # Ignore comment
                 continue
             else:
-                line_representation = ' ' * level * 4
+                line_representation = " " * level * 4
                 if level < previous_level:
                     # Exiting inner loop, close bracket
-                    line_representation += '),' * (previous_level - level)
-                    line_representation += '\n' + ' ' * level * 4
+                    line_representation += ")," * (previous_level - level)
+                    line_representation += "\n" + " " * level * 4
 
-                if line[:3] == 'for':
+                if line[:3] == "for":
                     # New loop
-                    for_opts, for_code = self.parse_options(line[4:-1], 'd:')
-                    if 'd' in for_opts:
+                    for_opts, for_code = self.parse_options(line[4:-1], "d:")
+                    if "d" in for_opts:
                         # Delay option provided
-                        line_representation += ('qcodes.Loop({}, '
-                                                'delay={}).each(\n'
-                                                ''.format(for_code,
-                                                          for_opts["d"]))
+                        line_representation += (
+                            "qcodes.Loop({}, delay={}).each(\n".format(
+                                for_code, for_opts["d"]
+                            )
+                        )
                     else:
                         line_representation += f"qcodes.Loop({for_code}).each(\n"
                 else:
                     # Action in current loop
-                    line_representation += f'{line},\n'
+                    line_representation += f"{line},\n"
                 contents += line_representation
 
                 # Remember level for next iteration (might exit inner loop)
                 previous_level = level
 
         # Add closing brackets for any remaining loops
-        contents += ')' * previous_level + '\n'
+        contents += ")" * previous_level + "\n"
         # Add dataset
         contents += f"{data_name} = {loop_name}.get_data_set(name='{msmt_name}')"
         if k is not None:
             for line in lines[k + 1 :]:
                 contents += "\n" + line
 
-        if 'p' in options:
+        if "p" in options:
             print(contents)
 
-        if 'x' not in options:
+        if "x" not in options:
             # Execute contents
             assert self.shell is not None
             self.shell.run_cell(contents, store_history=True, silent=True)
@@ -161,7 +162,10 @@ def register_magic_class(cls=QCoDeSMagic, magic_commands=True):
         if magic_commands is not True:
             assert cls.magics is not None
             # filter out any magic commands that are not in magic_commands
-            cls.magics = {line_cell: {key: val for key, val in magics.items()
-                                      if key in magic_commands}
-                          for line_cell, magics in cls.magics.items()}
+            cls.magics = {
+                line_cell: {
+                    key: val for key, val in magics.items() if key in magic_commands
+                }
+                for line_cell, magics in cls.magics.items()
+            }
         ip.magics_manager.register(cls)

@@ -11,13 +11,17 @@ from qcodes_loop.measure import Measure
 from qcodes_loop.tests.data_mocks import DataSet2D
 
 
-#%%
+# %%
 class TestFormatters(TestCase):
-
     def setUp(self):
         self.formatters = [GNUPlotFormat, HDF5Format, HDF5FormatMetadata]
-        self.metadata = {'subdict': {'stringlist': ['P1']}, 'string': 'P1',
-                         'int': 1, 'list': [1, 2], 'numpyarray': np.array([1])}
+        self.metadata = {
+            "subdict": {"stringlist": ["P1"]},
+            "string": "P1",
+            "int": 1,
+            "list": [1, 2],
+            "numpyarray": np.array([1]),
+        }
 
     def test_read_write(self):
         for f in self.formatters:
@@ -29,11 +33,9 @@ class TestFormatters(TestCase):
             dataset.write(write_metadata=True)
 
             dataset2 = load_data(dataset.location, formatter=f())
-            self.assertEqual(list(dataset.arrays.keys()),
-                             list(dataset2.arrays.keys()))
+            self.assertEqual(list(dataset.arrays.keys()), list(dataset2.arrays.keys()))
             # strings should be read and written identically
-            self.assertEqual(dataset.metadata['string'],
-                             dataset2.metadata['string'])
+            self.assertEqual(dataset.metadata["string"], dataset2.metadata["string"])
 
 
 class TestNoSorting(TestCase):
