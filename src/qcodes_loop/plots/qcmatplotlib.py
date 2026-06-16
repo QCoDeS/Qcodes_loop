@@ -88,7 +88,7 @@ class MatPlot(BasePlot):
             if figsize is None:
                 figsize = (6, 4)
             self.fig, self.subplots = plt.subplots(
-                figsize=figsize, num=num, squeeze=False, **subplots
+                figsize=figsize, num=num, squeeze=False, clear=True, **subplots
             )
         else:
             # Format subplots as tuple (nrows, ncols)
@@ -106,7 +106,7 @@ class MatPlot(BasePlot):
                 figsize = self.default_figsize(subplots)
 
             self.fig, self.subplots = plt.subplots(
-                *subplots, num=num, figsize=figsize, squeeze=False
+                *subplots, num=num, figsize=figsize, squeeze=False, clear=True
             )
 
         # squeeze=False ensures that subplots is always a 2D array independent
