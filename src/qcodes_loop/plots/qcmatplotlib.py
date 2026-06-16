@@ -106,7 +106,10 @@ class MatPlot(BasePlot):
                 figsize = self.default_figsize(subplots)
 
             self.fig, self.subplots = plt.subplots(
-                *subplots, num=num, figsize=figsize, squeeze=False,
+                *subplots,
+                num=num,
+                figsize=figsize,
+                squeeze=False,
                 clear=num is not None,
             )
 
