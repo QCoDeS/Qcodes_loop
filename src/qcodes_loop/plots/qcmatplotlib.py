@@ -81,14 +81,14 @@ class MatPlot(BasePlot):
         """
         return self.subplots[key]
 
-    def _init_plot(self, subplots=None, figsize=None, num=None):
+    def _init_plot(self, subplots=None, figsize=None, num=None, clear=False):
         import matplotlib.pyplot as plt
 
         if isinstance(subplots, Mapping):
-            if figsize is None:
+            if figsize is None and not (clear and num is not None):
                 figsize = (6, 4)
             self.fig, self.subplots = plt.subplots(
-                figsize=figsize, num=num, squeeze=False, **subplots
+                figsize=figsize, num=num, clear=clear, squeeze=False, **subplots
             )
         else:
             # Format subplots as tuple (nrows, ncols)
@@ -101,12 +101,12 @@ class MatPlot(BasePlot):
                 subplots = (nrows, ncols)
             if subplots is None:
                 subplots = (1, 1)
-            if figsize is None:
+            if figsize is None and not (clear and num is not None):
                 # Adjust figsize depending on rows and columns in subplots
                 figsize = self.default_figsize(subplots)
 
             self.fig, self.subplots = plt.subplots(
-                *subplots, num=num, figsize=figsize, squeeze=False
+                *subplots, num=num, clear=clear, figsize=figsize, squeeze=False
             )
 
         # squeeze=False ensures that subplots is always a 2D array independent
@@ -130,7 +130,7 @@ class MatPlot(BasePlot):
         """
         self.traces = []
         self.fig.clf()
-        self._init_plot(subplots, figsize, num=self.fig.number)
+        self._init_plot(subplots, figsize, num=self.fig.number, clear=True)
 
     def add_to_plot(self, use_offset: bool = False, **kwargs):
         """
