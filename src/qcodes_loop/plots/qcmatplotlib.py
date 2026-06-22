@@ -84,11 +84,21 @@ class MatPlot(BasePlot):
     def _init_plot(self, subplots=None, figsize=None, num=None):
         import matplotlib.pyplot as plt
 
+        # When reusing an existing figure window (e.g. via clear()), matplotlib
+        # ignores figure-level kwargs such as figsize and emits a warning. In
+        # that case we leave figsize out of the plt.subplots call and apply it
+        # to the figure directly afterwards.
+        reuse_figure = num is not None and plt.fignum_exists(num)
+
         if isinstance(subplots, Mapping):
             if figsize is None:
                 figsize = (6, 4)
             self.fig, self.subplots = plt.subplots(
-                figsize=figsize, num=num, squeeze=False, clear=True, **subplots
+                figsize=None if reuse_figure else figsize,
+                num=num,
+                squeeze=False,
+                clear=True,
+                **subplots,
             )
         else:
             # Format subplots as tuple (nrows, ncols)
@@ -106,8 +116,15 @@ class MatPlot(BasePlot):
                 figsize = self.default_figsize(subplots)
 
             self.fig, self.subplots = plt.subplots(
-                *subplots, num=num, figsize=figsize, squeeze=False, clear=True
+                *subplots,
+                num=num,
+                figsize=None if reuse_figure else figsize,
+                squeeze=False,
+                clear=True,
             )
+
+        if reuse_figure and figsize is not None:
+            self.fig.set_size_inches(figsize)
 
         # squeeze=False ensures that subplots is always a 2D array independent
         # of the number of subplots.
