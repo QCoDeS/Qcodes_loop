@@ -37,6 +37,19 @@ class TestQtPlot(TestCase):
     def tearDown(self):
         pass
 
+    @classmethod
+    def tearDownClass(cls):
+        # The remote pyqtgraph process spawns daemon threads that forward the
+        # child's stdout/stderr to sys.stdout/stderr. If the process is left
+        # running until interpreter shutdown, those threads can try to write to
+        # a stdout that pytest has already closed, raising
+        # "ValueError: I/O operation on closed file". Shut the process down here,
+        # while stdout is still valid.
+        if not noQtPlot and QtPlot.proc is not None:
+            QtPlot.proc.join()
+            QtPlot.proc = None
+            QtPlot.rpg = None
+
     def test_creation(self):
         """
         Simple test function which created a QtPlot window
