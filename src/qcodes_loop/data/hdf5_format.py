@@ -285,7 +285,9 @@ class HDF5Format(Formatter):
             name = array.array_id
 
         # Create the hdf5 dataset
-        dset = group.create_dataset(array.array_id, (0, 1), maxshape=(None, 1))
+        dset = group.create_dataset(
+            array.array_id, (0, 1), maxshape=(None, 1), dtype="f4"
+        )
         dset.attrs["label"] = _encode_to_utf8(str(label))
         dset.attrs["name"] = _encode_to_utf8(str(name))
         dset.attrs["unit"] = _encode_to_utf8(str(array.unit or ""))
