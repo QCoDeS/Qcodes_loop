@@ -2,6 +2,7 @@ from collections.abc import Sequence
 from datetime import datetime
 from typing import Optional
 
+import numpy as np
 from qcodes.metadatable import Metadatable
 from qcodes.parameters import Parameter
 from qcodes.utils import full_class
@@ -101,7 +102,9 @@ class Measure(Metadatable):
                 # The original return was an array, so take off the extra dim.
                 # (This ensures the outer dim length was 1, otherwise this
                 # will raise a ValueError.)
-                array.ndarray.shape = array.ndarray.shape[1:]
+                array.ndarray = np.reshape(
+                    array.ndarray, array.ndarray.shape[1:], copy=False
+                )
 
                 # TODO: DataArray.shape masks ndarray.shape, and a user *could*
                 # change it, thinking they were reshaping the underlying array,
