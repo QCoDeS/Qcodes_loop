@@ -134,6 +134,28 @@ class TestDataArray(TestCase):
         self.assertEqual(data2.ndarray.tolist(), list2d)
         self.assertEqual(data2.shape, (2, 2))
 
+    def test_iteration(self):
+        # a 1D array iterates over its individual values
+        data = DataArray(preset_data=[1.0, 2.0, 3.0])
+        self.assertEqual([float(value) for value in data], [1.0, 2.0, 3.0])
+
+        # iteration agrees with indexing and length
+        self.assertEqual(len(list(data)), len(data))
+        self.assertEqual(
+            [float(data[i]) for i in range(len(data))],
+            [float(value) for value in data],
+        )
+
+        # a 2D array iterates over its rows, matching numpy. Consumers such as
+        # the qcodes legacy dataset importer rely on this to loop over the
+        # outer setpoints of a 2D array.
+        data2d = DataArray(preset_data=[[1.0, 2.0], [3.0, 4.0]])
+        self.assertEqual([row.tolist() for row in data2d], [[1.0, 2.0], [3.0, 4.0]])
+
+        # an array that has no data yet cannot be iterated
+        with self.assertRaises(TypeError):
+            iter(DataArray(name="no_data"))
+
     def test_init_data_error(self):
         data = DataArray(preset_data=[1, 2])
         data.shape = (3,)

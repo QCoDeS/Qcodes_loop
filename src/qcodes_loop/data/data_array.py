@@ -4,6 +4,8 @@ from typing import TYPE_CHECKING, Any, Optional
 import numpy as np
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     import xarray as xr
 
 import logging
@@ -122,10 +124,10 @@ class DataArray(DelegateAttributes):
         full_name=None,
         label=None,
         snapshot=None,
-        array_id=None,
-        set_arrays=(),
-        shape=None,
-        action_indices=(),
+        array_id: "str | None" = None,
+        set_arrays: "tuple[DataArray, ...]" = (),
+        shape: "tuple[int, ...] | None" = None,
+        action_indices: "tuple[int, ...]" = (),
         unit=None,
         units=None,
         is_setpoint=False,
@@ -134,7 +136,11 @@ class DataArray(DelegateAttributes):
         self.name = name
         self.full_name = full_name or name
         self.label = label
-        self.shape = shape
+        # Declared explicitly because ``nest`` and ``init_data`` also assign to
+        # it; without a declaration type checkers take the union of every
+        # assignment, which includes fixed length tuples such as ``tuple[()]``
+        # and makes indexing the shape an error for consumers.
+        self.shape: tuple[int, ...] | None = shape
         if units is not None:
             _LOG.warning(
                 f"`units` is deprecated for the "
@@ -210,7 +216,12 @@ class DataArray(DelegateAttributes):
             raise RuntimeError("A DataArray can only be part of one DataSet")
         self._data_set = new_data_set
 
-    def nest(self, size, action_index=None, set_array=None):
+    def nest(
+        self,
+        size: int,
+        action_index: "int | None" = None,
+        set_array: "DataArray | None" = None,
+    ):
         """
         Nest this array inside a new outer loop.
 
@@ -380,6 +391,17 @@ class DataArray(DelegateAttributes):
         attribute to already exist.
         """
         return len(self.ndarray)
+
+    def __iter__(self) -> "Iterator[Any]":
+        """
+        Iterate over the values in this array.
+
+        Must be explicitly delegated, because iter() looks up ``__iter__`` on
+        the type rather than the instance. Without it iteration still works via
+        the legacy ``__getitem__`` protocol, but the array is not recognised as
+        iterable by type checkers.
+        """
+        return iter(self.ndarray)
 
     def flat_index(self, indices, index_fill=None):
         """
