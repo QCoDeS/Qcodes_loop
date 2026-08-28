@@ -28,8 +28,8 @@ class TestMeasure(TestCase):
         self.assertEqual(len(meta["actions"]), 1)
         self.assertFalse(meta["use_threads"])
 
-        ts_start = datetime.strptime(meta["ts_start"], "%Y-%m-%d %H:%M:%S")
-        ts_end = datetime.strptime(meta["ts_end"], "%Y-%m-%d %H:%M:%S")
+        ts_start = datetime.fromisoformat(meta["ts_start"])
+        ts_end = datetime.fromisoformat(meta["ts_end"])
         self.assertGreaterEqual(ts_end, ts_start)
 
     def test_simple_array(self):

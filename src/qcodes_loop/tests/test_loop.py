@@ -1,5 +1,5 @@
 import os
-from datetime import datetime
+from datetime import UTC, datetime
 from unittest import TestCase
 from unittest.mock import patch
 
@@ -15,6 +15,20 @@ from qcodes_loop.actions import BreakIf, Task, Wait, _QcodesBreak
 from qcodes_loop.data.data_array import DataArray
 from qcodes_loop.loops import Loop
 from qcodes_loop.sweep_values import Sweeper
+
+
+def _timestamp_variants():
+    """
+    Both spellings of "now" that may show up in a snapshot.
+
+    QCoDeS >= 0.59 renders parameter snapshot timestamps as timezone aware
+    ISO strings, older versions used a naive ``%Y-%m-%d %H:%M:%S`` string.
+    """
+    now = datetime.now(UTC).astimezone()
+    return (
+        now.isoformat(sep=" ", timespec="seconds"),
+        now.strftime("%Y-%m-%d %H:%M:%S"),
+    )
 
 
 class NanReturningParameter(MultiParameter):
@@ -387,7 +401,7 @@ class TestLoop(TestCase):
             g_calls.append(1)
 
         breaker = BreakIf(lambda: self.p1() >= 3)
-        ts1 = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        ts1 = _timestamp_variants()
         # evaluate param snapshots now since later value will change
         p1snap = self.p1.snapshot()
         self.p2.set(2)
@@ -400,7 +414,7 @@ class TestLoop(TestCase):
             .then(Task(self.p1.set, 2), Wait(0.01), Task(f))
             .run_temp()
         )
-        ts2 = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        ts2 = _timestamp_variants()
 
         self.assertEqual(repr(data.p1.tolist()), repr([1.0, 2.0, 3.0, nan, nan]))
         self.assertEqual(self.p1.get(), 2)
@@ -411,10 +425,11 @@ class TestLoop(TestCase):
         loopmeta = data.metadata["loop"]
         # assuming the whole loop takes < 1 sec, all timestamps
         # should each be the same as one of the bounding times
-        self.check_snap_ts(loopmeta, "ts_start", (ts1, ts2))
-        self.check_snap_ts(loopmeta, "ts_end", (ts1, ts2))
-        self.check_snap_ts(loopmeta["sweep_values"]["parameter"], "ts", (ts1, ts2))
-        self.check_snap_ts(loopmeta["actions"][0], "ts", (ts1, ts2))
+        ts_set = (*ts1, *ts2)
+        self.check_snap_ts(loopmeta, "ts_start", ts_set)
+        self.check_snap_ts(loopmeta, "ts_end", ts_set)
+        self.check_snap_ts(loopmeta["sweep_values"]["parameter"], "ts", ts_set)
+        self.check_snap_ts(loopmeta["actions"][0], "ts", ts_set)
         del p1snap["ts"], p2snap["ts"], p3snap["ts"]
 
         self.assertEqual(
@@ -503,7 +518,13 @@ class Test_halt(TestCase):
         [self.res.append(float("nan")) for i in range(0, abort_after - 1)]
 
         p1 = AbortingGetter(
-            "p1", count=abort_after, vals=Numbers(-10, 10), set_cmd=None
+            "p1",
+            count=abort_after,
+            vals=Numbers(-10, 10),
+            set_cmd=None,
+            # prime the cache so that the snapshots taken while setting up the
+            # loop are satisfied from the cache and do not consume the counter
+            initial_cache_value=0,
         )
         loop = Loop(Sweeper(p1).sweep(0, abort_after, 1), 0.005).each(p1)
         # we want to test what's in data, so get it ahead of time
