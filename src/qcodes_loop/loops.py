@@ -43,7 +43,7 @@ Supported commands to .each are:
 import logging
 import time
 from collections.abc import Sequence
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Optional
 
 import numpy as np
@@ -67,6 +67,17 @@ from .actions import (
 log = logging.getLogger(__name__)
 
 _tprint_times: dict[str, float] = {}
+
+
+def _timestamp_now() -> str:
+    """
+    Current local time as a timezone aware ISO formatted string.
+
+    The format matches the one QCoDeS uses for the ``ts`` entry of a
+    parameter snapshot so that timestamps stored in the metadata of a
+    :class:`qcodes_loop.data.data_set.DataSet` are directly comparable.
+    """
+    return datetime.now(UTC).astimezone().isoformat(sep=" ", timespec="seconds")
 
 
 def wait_secs(finish_clock: float) -> float:
@@ -795,7 +806,7 @@ class ActiveLoop(Metadatable):
         # information about the loop definition is in its snapshot
         data_set.add_metadata({"loop": self.snapshot()})
         # then add information about how and when it was run
-        ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        ts = _timestamp_now()
         data_set.add_metadata(
             {
                 "loop": {
@@ -870,7 +881,7 @@ class ActiveLoop(Metadatable):
                 # TODO (giulioungaretti) WTF?
                 # somehow this does not show up in the data_set returned by
                 # run(), but it is saved to the metadata
-                ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                ts = _timestamp_now()
                 self.data_set.add_metadata({"loop": {"ts_end": ts}})
                 self.data_set.finalize()
 
